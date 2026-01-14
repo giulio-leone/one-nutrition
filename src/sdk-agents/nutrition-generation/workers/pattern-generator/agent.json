@@ -1,0 +1,28 @@
+{
+  "id": "pattern-generator",
+  "version": "2.0.0",
+  "type": "agent",
+  "description": "Generates a complete day pattern with all meals composed",
+  "interface": {
+    "input": { "$ref": "pattern-generator:input" },
+    "output": { "$ref": "pattern-generator:output" }
+  },
+  "config": {
+    "tier": "balanced",
+    "temperature": 1,
+    "maxSteps": 25,
+    "maxTokens": 8192,
+    "timeout": 180000,
+    "executionMode": "durable",
+    "durability": {
+      "enabled": true,
+      "maxDurationMs": 600000,
+      "retry": {
+        "maxAttempts": 3,
+        "backoffMs": 1000,
+        "backoffMultiplier": 2
+      },
+      "checkpointStrategy": "step"
+    }
+  }
+}

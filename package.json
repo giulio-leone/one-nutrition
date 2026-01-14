@@ -1,0 +1,59 @@
+{
+  "name": "@onecoach/one-nutrition",
+  "version": "0.1.0",
+  "description": "OneNutrition - Unified Nutrition Domain for OneCoach",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./plan-transform": {
+      "types": "./src/core/transformers/plan-transform.ts",
+      "default": "./src/core/transformers/plan-transform.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix \"src/**/*.{ts,tsx}\"",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@onecoach/constants": "workspace:*",
+    "@onecoach/contracts": "workspace:*",
+    "@onecoach/lib-core": "workspace:*",
+    "@onecoach/lib-import-core": "workspace:*",
+    "@onecoach/lib-shared": "workspace:*",
+    "@onecoach/lib-validation": "workspace:*",
+    "@onecoach/one-agent": "workspace:*",
+    "@onecoach/schemas": "workspace:*",
+    "@onecoach/lib-food": "workspace:*",
+    "@prisma/client": "^7.2.0",
+    "zod": "4.3.4",
+    "@onecoach/types": "workspace:*",
+    "@onecoach/types-core": "workspace:*",
+    "@onecoach/types-workout": "workspace:*",
+    "@onecoach/types-nutrition": "workspace:*",
+    "@onecoach/types-chat": "workspace:*",
+    "@onecoach/types-analytics": "workspace:*",
+    "@onecoach/types-ai": "workspace:*",
+    "@onecoach/types-ui": "workspace:*",
+    "@onecoach/types-domain": "workspace:*",
+    "@onecoach/types-database": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "sideEffects": false
+}

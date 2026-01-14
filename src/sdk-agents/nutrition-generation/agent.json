@@ -1,0 +1,31 @@
+{
+  "id": "nutrition-generation",
+  "version": "2.0.0",
+  "type": "agent",
+  "description": "Multi-agent nutrition plan generator using SDK v4.0 with durable execution",
+  "interface": {
+    "input": { "$ref": "nutrition-generation:input" },
+    "output": { "$ref": "nutrition-generation:output" }
+  },
+  "mcpServers": {},
+  "config": {
+    "tier": "balanced",
+    "temperature": 1,
+    "maxSteps": 50,
+    "maxTokens": 8192,
+    "timeout": 600000,
+    "executionMode": "durable",
+    "skipSynthesis": true,
+    "outputArtifact": "finalPlan",
+    "durability": {
+      "enabled": true,
+      "maxDurationMs": 1800000,
+      "retry": {
+        "maxAttempts": 5,
+        "backoffMs": 2000,
+        "backoffMultiplier": 2
+      },
+      "checkpointStrategy": "step"
+    }
+  }
+}

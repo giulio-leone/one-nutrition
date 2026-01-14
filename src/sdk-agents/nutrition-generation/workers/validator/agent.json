@@ -1,0 +1,28 @@
+{
+  "id": "validator",
+  "version": "2.0.0",
+  "type": "agent",
+  "description": "Validates nutrition plan meets requirements",
+  "interface": {
+    "input": { "$ref": "nutrition-validator:input" },
+    "output": { "$ref": "nutrition-validator:output" }
+  },
+  "config": {
+    "tier": "fast",
+    "temperature": 1,
+    "maxSteps": 5,
+    "maxTokens": 4096,
+    "timeout": 30000,
+    "executionMode": "durable",
+    "durability": {
+      "enabled": true,
+      "maxDurationMs": 300000,
+      "retry": {
+        "maxAttempts": 2,
+        "backoffMs": 500,
+        "backoffMultiplier": 2
+      },
+      "checkpointStrategy": "step"
+    }
+  }
+}
