@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Plans meal structure and timing for the day",
   "interface": {
-    "input": { "$ref": "meal-planner:input" },
-    "output": { "$ref": "meal-planner:output" }
+    "input": { "$ref": "./schema.ts#MealPlannerInputSchema" },
+    "output": { "$ref": "./schema.ts#MealPlannerOutputSchema" }
   },
   "config": {
     "tier": "fast",

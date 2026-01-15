@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Generates a complete day pattern with all meals composed",
   "interface": {
-    "input": { "$ref": "pattern-generator:input" },
-    "output": { "$ref": "pattern-generator:output" }
+    "input": { "$ref": "./schema.ts#PatternGeneratorInputSchema" },
+    "output": { "$ref": "./schema.ts#PatternGeneratorOutputSchema" }
   },
   "config": {
     "tier": "balanced",

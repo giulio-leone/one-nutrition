@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Selects appropriate foods from catalog for each meal",
   "interface": {
-    "input": { "$ref": "food-selector:input" },
-    "output": { "$ref": "food-selector:output" }
+    "input": { "$ref": "./schema.ts#FoodSelectorInputSchema" },
+    "output": { "$ref": "./schema.ts#FoodSelectorOutputSchema" }
   },
   "config": {
     "tier": "balanced",

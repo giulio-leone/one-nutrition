@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Validates nutrition plan meets requirements",
   "interface": {
-    "input": { "$ref": "nutrition-validator:input" },
-    "output": { "$ref": "nutrition-validator:output" }
+    "input": { "$ref": "./schema.ts#ValidatorInputSchema" },
+    "output": { "$ref": "./schema.ts#ValidatorOutputSchema" }
   },
   "config": {
     "tier": "fast",

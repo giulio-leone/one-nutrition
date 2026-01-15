@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Multi-agent nutrition plan generator using SDK v4.0 with durable execution",
   "interface": {
-    "input": { "$ref": "nutrition-generation:input" },
-    "output": { "$ref": "nutrition-generation:output" }
+    "input": { "$ref": "./schema.ts#NutritionGenerationInputSchema" },
+    "output": { "$ref": "./schema.ts#NutritionGenerationOutputSchema" }
   },
   "mcpServers": {},
   "config": {

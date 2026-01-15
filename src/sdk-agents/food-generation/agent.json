@@ -4,8 +4,8 @@
   "type": "agent",
   "description": "Generates food items based on description and criteria",
   "interface": {
-    "input": { "$ref": "food-generation:input" },
-    "output": { "$ref": "food-generation:output" }
+    "input": { "$ref": "./schema.ts#FoodGenerationInputSchema" },
+    "output": { "$ref": "./schema.ts#FoodGenerationOutputSchema" }
   },
   "mcpServers": {},
   "config": {
