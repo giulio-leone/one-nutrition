@@ -1,6 +1,6 @@
 {
   "id": "food-generation",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
   "description": "Generates food items based on description and criteria",
   "interface": {
@@ -8,6 +8,22 @@
     "output": { "$ref": "./schema.ts#FoodGenerationOutputSchema" }
   },
   "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Parse food description", "weight": 20 },
+      { "name": "Generate nutritional data", "weight": 50 },
+      { "name": "Validate and format output", "weight": 30 }
+    ]
+  },
   "config": {
     "tier": "balanced",
     "temperature": 1,

@@ -1,13 +1,33 @@
 {
   "id": "nutrition-generation",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
-  "description": "Multi-agent nutrition plan generator using SDK v4.0 with durable execution",
+  "description": "Multi-agent nutrition plan generator using SDK v4.2 with durable execution",
   "interface": {
     "input": { "$ref": "./schema.ts#NutritionGenerationInputSchema" },
     "output": { "$ref": "./schema.ts#NutritionGenerationOutputSchema" }
   },
   "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Calculate daily macros", "weight": 5 },
+      { "name": "Distribute meal macros", "weight": 5 },
+      { "name": "Plan daily structure", "weight": 15 },
+      { "name": "Select foods", "weight": 20 },
+      { "name": "Generate patterns", "weight": 35 },
+      { "name": "Validate plan", "weight": 10 },
+      { "name": "Assemble final plan", "weight": 10 }
+    ]
+  },
   "config": {
     "tier": "balanced",
     "temperature": 1,

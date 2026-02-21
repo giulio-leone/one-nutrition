@@ -30,7 +30,7 @@ import {
   aiGeneratedFoodToFoodToCreate,
   AI_FOOD_DEFAULTS,
 } from '@onecoach/schemas';
-import { calculateMainMacro, type MainMacro } from '@onecoach/lib-shared';
+import { calculateMainMacro, toPrismaJsonValue, type MainMacro } from '@onecoach/lib-shared';
 
 // ============================================================================
 // CONSTANTS
@@ -301,10 +301,10 @@ export class FoodAutoCreationService {
       id: foodId,
       name: food.name,
       nameNormalized,
-      macrosPer100g: food.macrosPer100g as unknown as Prisma.InputJsonValue,
+      macrosPer100g: toPrismaJsonValue(food.macrosPer100g),
       servingSize: food.servingSize || AI_FOOD_DEFAULTS.servingSize,
       unit: food.unit || AI_FOOD_DEFAULTS.unit,
-      mainMacro: mainMacro as unknown as Prisma.InputJsonValue,
+      mainMacro: toPrismaJsonValue(mainMacro),
       proteinPct,
       carbPct,
       fatPct,

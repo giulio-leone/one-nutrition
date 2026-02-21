@@ -7,7 +7,7 @@
 
 import { prisma } from '@onecoach/lib-core';
 import { Prisma } from '@prisma/client';
-import { createId } from '@onecoach/lib-shared';
+import { createId, toPrismaJsonValue } from '@onecoach/lib-shared';
 import type { MealTemplate, Meal } from '@onecoach/types';
 
 export class MealTemplateService {
@@ -38,7 +38,7 @@ export class MealTemplateService {
         userId,
         name: data.name.trim(),
         description: data.description?.trim() || null,
-        meal: data.meal as unknown as Prisma.InputJsonValue,
+        meal: toPrismaJsonValue(data.meal as Record<string, unknown>),
         tags: data.tags || [],
         isPublic: data.isPublic || false,
       },
@@ -140,7 +140,7 @@ export class MealTemplateService {
       updateData.description = data.description?.trim() || null;
     }
     if (data.meal !== undefined) {
-      updateData.meal = data.meal as unknown as Prisma.InputJsonValue;
+      updateData.meal = toPrismaJsonValue(data.meal as Record<string, unknown>);
     }
     if (data.tags !== undefined) {
       updateData.tags = data.tags;
@@ -187,7 +187,7 @@ export class MealTemplateService {
       id: template.id,
       name: template.name,
       description: template.description || undefined,
-      meal: template.meal as unknown as Meal,
+      meal: template.meal as Meal,
       tags: template.tags,
       isPublic: template.isPublic,
       userId: template.userId ?? '',

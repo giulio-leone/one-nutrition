@@ -1,11 +1,28 @@
 {
   "id": "food-selector",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
   "description": "Selects appropriate foods from catalog for each meal",
   "interface": {
     "input": { "$ref": "./schema.ts#FoodSelectorInputSchema" },
     "output": { "$ref": "./schema.ts#FoodSelectorOutputSchema" }
+  },
+  "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Analyze meal targets", "weight": 20 },
+      { "name": "Filter catalog by restrictions", "weight": 30 },
+      { "name": "Select optimal foods per meal", "weight": 50 }
+    ]
   },
   "config": {
     "tier": "balanced",

@@ -63,21 +63,21 @@ import { nutritionTools } from './sdk-agents/nutrition-generation/tools/tools';
  * Accepts generic Record and casts to expected input type
  */
 function calculateDailyMacrosTransform(input: Record<string, unknown>): unknown {
-  return calculateDailyMacros(input as unknown as CalculateDailyMacrosInput);
+  return calculateDailyMacros(input as Record<string, unknown> & CalculateDailyMacrosInput);
 }
 
 /**
  * Transform wrapper for distributeMealMacros
  */
 function distributeMealMacrosTransform(input: Record<string, unknown>): unknown {
-  return distributeMealMacros(input as unknown as DistributeMealMacrosInput);
+  return distributeMealMacros(input as Record<string, unknown> & DistributeMealMacrosInput);
 }
 
 /**
  * Transform wrapper for assemblePlan
  */
 function assemblePlanTransform(input: Record<string, unknown>): unknown {
-  const result = assemblePlan(input as unknown as AssemblePlanInput);
+  const result = assemblePlan(input as Record<string, unknown> & AssemblePlanInput);
 
   // Return complete output matching NutritionGenerationOutputSchema
   // This is used directly by skipSynthesis in engine.ts

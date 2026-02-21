@@ -6,6 +6,7 @@ This workflow orchestrates multiple specialized agents to generate a complete pe
 
 ```yaml
 transform: calculateDailyMacros
+weight: 5
 input:
   userProfile: ${input.userProfile}
   goals: ${input.goals}
@@ -16,6 +17,7 @@ store: dailyMacros
 
 ```yaml
 transform: distributeMealMacros
+weight: 5
 input:
   dailyMacros: ${artifacts.dailyMacros}
   mealsPerDay: ${input.goals.mealsPerDay}
@@ -26,6 +28,7 @@ store: mealTargets
 
 ```yaml
 call: workers/meal-planner
+weight: 15
 input:
   goals: ${input.goals}
   restrictions: ${input.restrictions}
@@ -37,6 +40,7 @@ store: mealStructure
 
 ```yaml
 call: workers/food-selector
+weight: 20
 input:
   mealTargets: ${artifacts.mealTargets}
   mealStructure: ${artifacts.mealStructure}
@@ -49,6 +53,7 @@ store: selectedFoods
 
 ```yaml
 loop:
+  weight: 35
   over: [A, B, C]
   itemVar: patternCode
   mode: parallel
@@ -69,6 +74,7 @@ loop:
 
 ```yaml
 call: workers/validator
+weight: 10
 input:
   patterns: ${artifacts.composedPatterns}
   dailyMacros: ${artifacts.dailyMacros}
@@ -81,6 +87,7 @@ store: validationResult
 
 ```yaml
 transform: assemblePlan
+weight: 10
 input:
   patterns: ${artifacts.composedPatterns}
   dailyMacros: ${artifacts.dailyMacros}

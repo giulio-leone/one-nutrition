@@ -1,11 +1,28 @@
 {
   "id": "meal-planner",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
   "description": "Plans meal structure and timing for the day",
   "interface": {
     "input": { "$ref": "./schema.ts#MealPlannerInputSchema" },
     "output": { "$ref": "./schema.ts#MealPlannerOutputSchema" }
+  },
+  "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Analyze goals and restrictions", "weight": 30 },
+      { "name": "Design meal timing", "weight": 40 },
+      { "name": "Structure meal composition", "weight": 30 }
+    ]
   },
   "config": {
     "tier": "fast",

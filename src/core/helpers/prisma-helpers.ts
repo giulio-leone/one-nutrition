@@ -4,12 +4,13 @@
  * Type-safe helpers for converting nutrition data to Prisma Json format.
  * Eliminates unsafe type assertions in API routes.
  *
- * NOTE: The `as unknown as Prisma.InputJsonValue` assertions are necessary
- * because Prisma's Json type is a branded type that requires explicit conversion.
+ * NOTE: These helpers delegate to `toPrismaJsonValue` / `toNullablePrismaJsonValue`
+ * from `@onecoach/lib-shared` for type-safe Prisma JSON conversion.
  * These helpers ensure type safety at the call site while maintaining Prisma compatibility.
  */
 
 import { Prisma } from '@onecoach/types';
+import { toPrismaJsonValue, toNullablePrismaJsonValue } from '@onecoach/lib-shared';
 import type {
   Adaptations,
   CompleteMacros,
@@ -28,7 +29,7 @@ import type {
  */
 export function toPrismaJsonMacros(macros: Macros): Prisma.InputJsonValue {
   // Type assertion is safe: Macros is a plain object compatible with Json
-  return macros as unknown as Prisma.InputJsonValue;
+  return toPrismaJsonValue(macros as Record<string, unknown>);
 }
 
 /**
@@ -39,7 +40,7 @@ export function toPrismaJsonMacros(macros: Macros): Prisma.InputJsonValue {
  */
 export function toPrismaJsonCompleteMacros(macros: CompleteMacros): Prisma.InputJsonValue {
   // Type assertion is safe: CompleteMacros is a plain object compatible with Json
-  return macros as unknown as Prisma.InputJsonValue;
+  return toPrismaJsonValue(macros as Record<string, unknown>);
 }
 
 /**
@@ -84,7 +85,7 @@ export function toPrismaJsonWeeks(
       }>
 ): Prisma.InputJsonValue {
   // Type assertion is safe: NutritionWeek[] is a plain array of objects compatible with Json
-  return weeks as unknown as Prisma.InputJsonValue;
+  return toPrismaJsonValue(weeks as unknown[]);
 }
 
 /**
@@ -94,7 +95,7 @@ export function toPrismaNullableJson<T>(value: T | null): Prisma.NullableJsonNul
   if (value === null) {
     return Prisma.JsonNull;
   }
-  return value as unknown as Prisma.NullableJsonNullValueInput;
+  return toNullablePrismaJsonValue(value as Record<string, unknown>) as Prisma.NullableJsonNullValueInput;
 }
 
 export function toPrismaJsonPersonalizedPlan(

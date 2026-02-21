@@ -10,6 +10,7 @@ import { prisma } from '@onecoach/lib-core';
 import { logger } from '@onecoach/lib-core';
 import { Prisma } from '@prisma/client';
 import { createId } from '@onecoach/lib-shared/id-generator';
+import { toPrismaJsonValue } from '@onecoach/lib-shared';
 import type {
   NutritionTemplate,
   NutritionTemplateType,
@@ -103,7 +104,7 @@ export class NutritionTemplateService {
         description: data.description?.trim() || null,
         category: data.category?.trim() || null,
         tags: data.tags || [],
-        data: data.data as unknown as Prisma.InputJsonValue,
+        data: toPrismaJsonValue(data.data as Record<string, unknown>),
         isPublic: data.isPublic || false,
         usageCount: 0,
         lastUsedAt: null,
@@ -261,7 +262,7 @@ export class NutritionTemplateService {
       updateData.tags = data.tags;
     }
     if (data.data !== undefined) {
-      updateData.data = data.data as unknown as Prisma.InputJsonValue;
+      updateData.data = toPrismaJsonValue(data.data as Record<string, unknown>);
     }
     if (data.isPublic !== undefined) {
       updateData.isPublic = data.isPublic;
@@ -320,7 +321,7 @@ export class NutritionTemplateService {
         description: template.description || undefined,
         category: template.category || undefined,
         tags: template.tags || [],
-        data: template.data as unknown as Meal | NutritionDay | NutritionWeek,
+        data: template.data as Meal | NutritionDay | NutritionWeek,
         isPublic: template.isPublic,
         usageCount: template.usageCount,
         lastUsedAt: template.lastUsedAt?.toISOString() || undefined,

@@ -17,6 +17,7 @@ import type {
   UpdateNutritionDayLogRequest,
   NutritionPlanStats,
   Macros,
+  Meal,
 } from '@onecoach/types';
 import { Prisma, type nutrition_day_logs } from '@prisma/client';
 import { toMacros, ensureDecimalNumber } from '@onecoach/lib-shared';
@@ -42,18 +43,18 @@ function toNutritionDayLog(record: NutritionDayLogRecord): NutritionDayLog {
 
   return {
     id: record.id,
-    userId: record.userId,
+    userId: record.userId ?? '',
     planId: record.planId,
     weekNumber: record.weekNumber,
     dayNumber: record.dayNumber,
     date: record.date,
-    meals: record.meals,
+    meals: record.meals as Meal[],
     actualDailyMacros,
     waterIntake,
-    notes: record.notes,
-    createdAt: record.createdAt,
-    updatedAt: record.updatedAt,
-  } as unknown as NutritionDayLog;
+    notes: record.notes ?? undefined,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
+  };
 }
 
 import { normalizeNutritionPlan, type PrismaNutritionPlan } from '../transformers/plan-transform';
@@ -91,7 +92,7 @@ export async function createNutritionDayLog(
   }
 
   // Normalize plan to ensure structure consistency (fixes empty meals issue)
-  const plan = normalizeNutritionPlan(rawPlan as unknown as PrismaNutritionPlan);
+  const plan = normalizeNutritionPlan(rawPlan as PrismaNutritionPlan);
 
   // Debug: Log plan weeks structure
   logger.warn('[createNutritionDayLog] Plan weeks structure (normalized):', {
@@ -323,7 +324,7 @@ export async function getNutritionPlanStats(
   const { getNutritionPlanTotalDays } = await import('@onecoach/lib-shared');
   const { normalizeNutritionPlan: normalizePlanDynamic } =
     await import('../transformers/plan-transform');
-  const normalizedPlan = normalizePlanDynamic(plan as unknown as PrismaNutritionPlan);
+  const normalizedPlan = normalizePlanDynamic(plan as PrismaNutritionPlan);
   const totalDays = getNutritionPlanTotalDays(normalizedPlan);
 
   const loggedDays = logs.length;

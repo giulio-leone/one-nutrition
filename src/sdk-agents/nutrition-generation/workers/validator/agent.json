@@ -1,11 +1,28 @@
 {
   "id": "validator",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
   "description": "Validates nutrition plan meets requirements",
   "interface": {
     "input": { "$ref": "./schema.ts#ValidatorInputSchema" },
     "output": { "$ref": "./schema.ts#ValidatorOutputSchema" }
+  },
+  "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Validate macro totals", "weight": 35 },
+      { "name": "Check restriction compliance", "weight": 35 },
+      { "name": "Verify meal balance", "weight": 30 }
+    ]
   },
   "config": {
     "tier": "fast",

@@ -37,7 +37,7 @@
     "@onecoach/schemas": "workspace:*",
     "@onecoach/lib-food": "workspace:*",
     "@prisma/client": "^7.2.0",
-    "zod": "4.3.4",
+    "zod": "4.3.6",
     "@onecoach/types": "workspace:*",
     "@onecoach/types-core": "workspace:*",
     "@onecoach/types-workout": "workspace:*",

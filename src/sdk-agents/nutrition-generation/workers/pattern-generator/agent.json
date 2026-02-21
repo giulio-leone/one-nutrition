@@ -1,11 +1,31 @@
 {
   "id": "pattern-generator",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "agent",
   "description": "Generates a complete day pattern with all meals composed",
   "interface": {
     "input": { "$ref": "./schema.ts#PatternGeneratorInputSchema" },
     "output": { "$ref": "./schema.ts#PatternGeneratorOutputSchema" }
+  },
+  "mcpServers": {},
+  "skills": {
+    "path": "skills",
+    "expose": []
+  },
+  "tools": {
+    "source": "registry",
+    "allowlist": []
+  },
+  "progress": {
+    "aiDriven": true,
+    "fallbackSteps": [
+      { "name": "Initialize pattern structure", "weight": 15 },
+      { "name": "Compose breakfast", "weight": 20 },
+      { "name": "Compose lunch", "weight": 20 },
+      { "name": "Compose dinner", "weight": 20 },
+      { "name": "Compose snacks", "weight": 15 },
+      { "name": "Balance macros across meals", "weight": 10 }
+    ]
   },
   "config": {
     "tier": "balanced",
