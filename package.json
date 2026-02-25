@@ -27,6 +27,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@giulio-leone/agent-contracts": "workspace:*",
     "@onecoach/constants": "workspace:*",
     "@onecoach/contracts": "workspace:*",
     "@onecoach/lib-core": "workspace:*",

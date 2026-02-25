@@ -5,7 +5,8 @@
  */
 
 import { resolve } from 'path';
-import { execute, type ProgressCallback } from '@onecoach/one-agent/framework';
+import { execute } from '@onecoach/one-agent/framework';
+import type { ProgressCallback } from '@giulio-leone/agent-contracts';
 import { initializeNutritionSchemas } from '../registry';
 import type {
   FoodGenerationInput,
