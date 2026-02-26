@@ -1,5 +1,5 @@
 /**
- * Mock for @onecoach/lib-core used in tests.
+ * Mock for @giulio-leone/lib-core used in tests.
  */
 export const logger = {
   debug: (..._args: unknown[]): void => {},

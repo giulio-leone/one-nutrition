@@ -5,12 +5,12 @@
  * Eliminates unsafe type assertions in API routes.
  *
  * NOTE: These helpers delegate to `toPrismaJsonValue` / `toNullablePrismaJsonValue`
- * from `@onecoach/lib-shared` for type-safe Prisma JSON conversion.
+ * from `@giulio-leone/lib-shared` for type-safe Prisma JSON conversion.
  * These helpers ensure type safety at the call site while maintaining Prisma compatibility.
  */
 
-import { Prisma } from '@onecoach/types';
-import { toPrismaJsonValue, toNullablePrismaJsonValue } from '@onecoach/lib-shared';
+import { Prisma } from '@giulio-leone/types';
+import { toPrismaJsonValue, toNullablePrismaJsonValue } from '@giulio-leone/lib-shared';
 import type {
   Adaptations,
   CompleteMacros,
@@ -19,7 +19,7 @@ import type {
   NutritionWeek,
   PersonalizedPlan,
   NutritionUserProfile,
-} from '@onecoach/types';
+} from '@giulio-leone/types';
 
 /**
  * Convert Macros to Prisma Json format (type-safe)

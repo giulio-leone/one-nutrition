@@ -9,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@onecoach/lib-core': path.resolve(__dirname, '__mocks__/@onecoach/lib-core.ts'),
+      '@giulio-leone/lib-core': path.resolve(__dirname, '__mocks__/@giulio-leone/lib-core.ts'),
     },
   },
 });

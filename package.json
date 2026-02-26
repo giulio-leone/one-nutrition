@@ -1,5 +1,5 @@
 {
-  "name": "@onecoach/one-nutrition",
+  "name": "@giulio-leone/one-nutrition",
   "version": "0.1.0",
   "description": "OneNutrition - Unified Nutrition Domain for OneCoach",
   "type": "module",
@@ -13,6 +13,10 @@
     "./plan-transform": {
       "types": "./src/core/transformers/plan-transform.ts",
       "default": "./src/core/transformers/plan-transform.ts"
+    },
+    "./server-transform": {
+      "types": "./src/core/transformers/plan-server-transform.ts",
+      "default": "./src/core/transformers/plan-server-transform.ts"
     }
   },
   "files": [
@@ -28,27 +32,16 @@
   },
   "dependencies": {
     "@giulio-leone/agent-contracts": "workspace:*",
-    "@onecoach/constants": "workspace:*",
-    "@onecoach/contracts": "workspace:*",
-    "@onecoach/lib-core": "workspace:*",
-    "@onecoach/lib-import-core": "workspace:*",
-    "@onecoach/lib-shared": "workspace:*",
-    "@onecoach/lib-validation": "workspace:*",
-    "@onecoach/one-agent": "workspace:*",
-    "@onecoach/schemas": "workspace:*",
-    "@onecoach/lib-food": "workspace:*",
+    "@giulio-leone/constants": "^0.13.0",
+    "@giulio-leone/lib-import-core": "^0.3.0",
+    "@giulio-leone/lib-core": "workspace:*",
+    "@giulio-leone/lib-shared": "workspace:*",
+    "@giulio-leone/one-agent": "workspace:*",
+    "@giulio-leone/schemas": "workspace:*",
+    "@giulio-leone/lib-food": "^0.10.0",
     "@prisma/client": "^7.2.0",
     "zod": "4.3.6",
-    "@onecoach/types": "workspace:*",
-    "@onecoach/types-core": "workspace:*",
-    "@onecoach/types-workout": "workspace:*",
-    "@onecoach/types-nutrition": "workspace:*",
-    "@onecoach/types-chat": "workspace:*",
-    "@onecoach/types-analytics": "workspace:*",
-    "@onecoach/types-ai": "workspace:*",
-    "@onecoach/types-ui": "workspace:*",
-    "@onecoach/types-domain": "workspace:*",
-    "@onecoach/types-database": "workspace:*"
+    "@giulio-leone/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",

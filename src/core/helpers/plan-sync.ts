@@ -5,7 +5,7 @@
  * Segue principi KISS, DRY, SOLID
  */
 
-import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@onecoach/types';
+import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@giulio-leone/types';
 import { calculateMacros, aggregateMealMacros, normalizeMacros } from '../utils/macro-calculations';
 
 /**

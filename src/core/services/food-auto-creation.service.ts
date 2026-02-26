@@ -5,7 +5,7 @@
  * durante la generazione di piani nutrizionali AI.
  *
  * ARCHITETTURA:
- * - SSOT: Usa schemi da @onecoach/schemas per validazione
+ * - SSOT: Usa schemi da @giulio-leone/schemas per validazione
  * - Matching: Fuzzy match + macro similarity
  * - Batch processing per efficienza
  * - Logging dettagliato per tracciabilità
@@ -17,20 +17,20 @@
  * 4. Restituisce mappa di foodItemId validi
  */
 
-import { FoodService, normalizeFoodName } from '@onecoach/lib-food';
-import type { Macros, NutritionPlan } from '@onecoach/types';
-import { prisma } from '@onecoach/lib-core';
-import { createId } from '@onecoach/lib-shared/id-generator';
-import { SUPPORTED_FOOD_LOCALES } from '@onecoach/constants';
+import { FoodService, normalizeFoodName } from '@giulio-leone/lib-food';
+import type { Macros, NutritionPlan } from '@giulio-leone/types';
+import { prisma } from '@giulio-leone/lib-core';
+import { createId } from '@giulio-leone/lib-shared/id-generator';
+import { SUPPORTED_FOOD_LOCALES } from '@giulio-leone/constants';
 import { Prisma } from '@prisma/client';
-import { logger } from '@onecoach/lib-core';
+import { logger } from '@giulio-leone/lib-core';
 import {
   type AIGeneratedFood,
   safeValidateAIGeneratedFood,
   aiGeneratedFoodToFoodToCreate,
   AI_FOOD_DEFAULTS,
-} from '@onecoach/schemas';
-import { calculateMainMacro, toPrismaJsonValue, type MainMacro } from '@onecoach/lib-shared';
+} from '@giulio-leone/schemas';
+import { calculateMainMacro, toPrismaJsonValue, type MainMacro } from '@giulio-leone/lib-shared';
 
 // ============================================================================
 // CONSTANTS

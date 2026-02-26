@@ -10,10 +10,10 @@
  * server-side when called.
  */
 
-import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@onecoach/types';
-import { FoodService, calculateMacrosFromQuantity } from '@onecoach/lib-food';
+import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@giulio-leone/types';
+import { FoodService, calculateMacrosFromQuantity } from '@giulio-leone/lib-food';
 
-import { logger } from '@onecoach/lib-core';
+import { logger } from '@giulio-leone/lib-core';
 const DEFAULT_MACROS = {
   calories: 0,
   protein: 0,

@@ -6,7 +6,7 @@
  * Part of Nutrition Core.
  */
 
-import type { NutritionPlan, NutritionWeek, NutritionDay } from '@onecoach/types';
+import type { NutritionPlan, NutritionWeek, NutritionDay } from '@giulio-leone/types';
 
 /**
  * Get all goals from a nutrition plan

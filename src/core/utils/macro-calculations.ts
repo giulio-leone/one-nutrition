@@ -5,7 +5,7 @@
  * Part of Nutrition Core.
  */
 
-import type { Food, Meal, NutritionDay } from '@onecoach/types';
+import type { Food, Meal, NutritionDay } from '@giulio-leone/types';
 
 export interface Macros {
   calories: number;

@@ -13,7 +13,7 @@ import type {
   Food,
   PersonalizedPlan,
   Adaptations,
-} from '@onecoach/types';
+} from '@giulio-leone/types';
 import {
   MacrosSchema,
   CompleteMacrosSchema,
@@ -21,7 +21,7 @@ import {
   MealSchema,
   NutritionDaySchema,
   NutritionWeekSchema,
-} from '@onecoach/schemas';
+} from '@giulio-leone/schemas';
 
 /**
  * Macros type guard

@@ -20,7 +20,8 @@ export * from './helpers/template-helpers';
 
 // Transformers
 export * from './transformers/plan-transform';
-export * from './transformers/plan-server-transform';
+// plan-server-transform excluded from barrel: depends on lib-food → lib-core (circular)
+// Import directly: @giulio-leone/one-nutrition/server-transform
 
 // Normalizers
 export * from './normalizers/plan-normalizer';

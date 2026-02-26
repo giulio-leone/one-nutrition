@@ -10,7 +10,7 @@
  * - Dependency Inversion: Depends on Prisma abstraction
  */
 
-import { prisma } from '@onecoach/lib-core';
+import { prisma } from '@giulio-leone/lib-core';
 import type {
   NutritionDayLog,
   CreateNutritionDayLogRequest,
@@ -18,11 +18,11 @@ import type {
   NutritionPlanStats,
   Macros,
   Meal,
-} from '@onecoach/types';
+} from '@giulio-leone/types';
 import { Prisma, type nutrition_day_logs } from '@prisma/client';
-import { toMacros, ensureDecimalNumber } from '@onecoach/lib-shared';
+import { toMacros, ensureDecimalNumber } from '@giulio-leone/lib-shared';
 
-import { logger } from '@onecoach/lib-core';
+import { logger } from '@giulio-leone/lib-core';
 type NutritionDayLogRecord = nutrition_day_logs;
 
 const db = prisma;
@@ -321,7 +321,7 @@ export async function getNutritionPlanStats(
   });
 
   // Use helper function for future-proof access to plan structure
-  const { getNutritionPlanTotalDays } = await import('@onecoach/lib-shared');
+  const { getNutritionPlanTotalDays } = await import('@giulio-leone/lib-shared');
   const { normalizeNutritionPlan: normalizePlanDynamic } =
     await import('../transformers/plan-transform');
   const normalizedPlan = normalizePlanDynamic(plan as PrismaNutritionPlan);

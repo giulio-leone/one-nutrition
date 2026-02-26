@@ -5,7 +5,7 @@
  * Esclude i campi JSON pesanti (weeks, personalizedPlan, adaptations) per migliorare le performance.
  */
 
-import { NutritionStatus } from '@onecoach/types';
+import { NutritionStatus } from '@giulio-leone/types';
 import { parseNutritionStatus } from '../transformers/plan-transform';
 
 /**

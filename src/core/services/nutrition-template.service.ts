@@ -5,19 +5,19 @@
  * Segue principi SOLID: Single Responsibility, Open/Closed, DRY
  */
 
-import { prisma } from '@onecoach/lib-core';
+import { prisma } from '@giulio-leone/lib-core';
 
-import { logger } from '@onecoach/lib-core';
+import { logger } from '@giulio-leone/lib-core';
 import { Prisma } from '@prisma/client';
-import { createId } from '@onecoach/lib-shared/id-generator';
-import { toPrismaJsonValue } from '@onecoach/lib-shared';
+import { createId } from '@giulio-leone/lib-shared/id-generator';
+import { toPrismaJsonValue } from '@giulio-leone/lib-shared';
 import type {
   NutritionTemplate,
   NutritionTemplateType,
   Meal,
   NutritionDay,
   NutritionWeek,
-} from '@onecoach/types';
+} from '@giulio-leone/types';
 
 interface ListTemplatesOptions {
   type?: NutritionTemplateType;

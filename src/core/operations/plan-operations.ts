@@ -5,11 +5,11 @@
  * Segue principi KISS, DRY, SOLID
  */
 
-import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@onecoach/types';
+import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@giulio-leone/types';
 import { createEmptyDay, createEmptyWeek } from '../transformers/plan-transform';
 import { getNutritionPlanTotalDays } from '../utils/nutrition-plan-helpers';
 import { calculateMacros, recalculateDay } from '../utils/macro-calculations';
-import { createId } from '@onecoach/lib-shared';
+import { createId } from '@giulio-leone/lib-shared';
 
 /**
  * Aggiunge una nuova settimana al piano

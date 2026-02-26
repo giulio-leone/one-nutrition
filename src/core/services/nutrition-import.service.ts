@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { prisma } from '@onecoach/lib-core';
+import { prisma } from '@giulio-leone/lib-core';
 import type {
   AIParseContext,
   ImportOptions,
   BaseImportResult,
   ImportFileType,
-} from '@onecoach/lib-import-core';
-import { BaseImportService, parseWithVisionAI } from '@onecoach/lib-import-core';
+} from '@giulio-leone/lib-import-core';
+import { BaseImportService, parseWithVisionAI } from '@giulio-leone/lib-import-core';
 import { normalizeAgentPayload, preparePlanForPersistence } from '../transformers/plan-transform';
 import type { nutrition_plans } from '@prisma/client';
 import {

@@ -1,5 +1,5 @@
 /**
- * @onecoach/lib-nutrition - Nutrition Calculator (SSOT)
+ * @giulio-leone/lib-nutrition - Nutrition Calculator (SSOT)
  *
  * Single Source of Truth per tutti i calcoli nutrizionali.
  * Questo modulo centralizza:
@@ -9,7 +9,7 @@
  * - Validazione range sicuri
  *
  * NON DUPLICARE queste formule altrove!
- */ import { logger } from '@onecoach/lib-core';
+ */ import { logger } from '@giulio-leone/lib-core';
 
 // ============================================
 // TYPES

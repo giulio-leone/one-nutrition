@@ -5,7 +5,7 @@
  * Call initializeNutritionSchemas() before executing nutrition agents.
  */
 
-import { registerSchemas, registerTools, registerTransforms } from '@onecoach/one-agent/framework';
+import { registerSchemas, registerTools, registerTransforms } from '@giulio-leone/one-agent/framework';
 
 // ==================== MAIN COORDINATOR SCHEMAS ====================
 
