@@ -38,7 +38,7 @@
     "@giulio-leone/lib-shared": "workspace:*",
     "@giulio-leone/one-agent": "workspace:*",
     "@giulio-leone/schemas": "workspace:*",
-    "@giulio-leone/lib-food": "^0.10.0",
+    "@giulio-leone/lib-food": "workspace:*",
     "@prisma/client": "^7.2.0",
     "zod": "4.3.6",
     "@giulio-leone/types": "workspace:*"
