@@ -33,3 +33,10 @@ export {
   createNutritionEventSender,
   type NutritionEventSender,
 } from './services/nutrition-event-sender';
+
+// Shopping
+export { ShoppingGeneratorService } from './services/shopping-generator.service';
+export {
+  shoppingPreferencesSchema,
+  type ShoppingPreferences,
+} from './services/shopping-preferences.schema';
