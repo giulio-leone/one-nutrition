@@ -20,3 +20,16 @@ export {
   initializeFoodGeneration,
   type FoodGenerationResult,
 } from './services/food-generation.service';
+
+// Streaming / Agent services
+export {
+  NutritionPlannerAgent,
+} from './services/nutrition-planner-agent';
+export {
+  NutritionGenerationConfigService,
+  type NutritionModelConfig,
+} from './services/nutrition-generation-config.service';
+export {
+  createNutritionEventSender,
+  type NutritionEventSender,
+} from './services/nutrition-event-sender';
