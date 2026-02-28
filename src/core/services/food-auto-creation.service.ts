@@ -19,8 +19,8 @@
 
 import { FoodService, normalizeFoodName } from '@giulio-leone/lib-food';
 import type { Macros, NutritionPlan } from '@giulio-leone/types';
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { IFoodRepository, CreateFoodItemInput } from '@giulio-leone/core/repositories';
+import { getFoodRepo } from '@giulio-leone/core';
+import type { CreateFoodItemInput } from '@giulio-leone/core/repositories';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
 import { SUPPORTED_FOOD_LOCALES } from '@giulio-leone/constants';
 import { logger } from '@giulio-leone/lib-core';
@@ -31,9 +31,6 @@ import {
   AI_FOOD_DEFAULTS,
 } from '@giulio-leone/schemas';
 import { calculateMainMacro, type MainMacro } from '@giulio-leone/lib-shared';
-
-const getFoodRepo = () =>
-  ServiceRegistry.getInstance().resolve<IFoodRepository>(REPO_TOKENS.FOOD);
 
 // ============================================================================
 // CONSTANTS

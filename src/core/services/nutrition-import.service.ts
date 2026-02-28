@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { INutritionPlanRepository, NutritionPlan as NutritionPlanEntity } from '@giulio-leone/core/repositories';
+import { getNutritionRepo as getNutritionPlanRepo } from '@giulio-leone/core';
+import type { NutritionPlan as NutritionPlanEntity } from '@giulio-leone/core/repositories';
 import type {
   AIParseContext,
   ImportOptions,
@@ -11,9 +11,6 @@ import { BaseImportService, parseWithVisionAI } from '@giulio-leone/lib-import-c
 import { normalizeAgentPayload, preparePlanForPersistence } from '../transformers/plan-transform';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
 import { ImportedNutritionPlanSchema } from '../helpers/imported-nutrition.schema';
-
-const getNutritionPlanRepo = () =>
-  ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
 
 const NutritionImportOptionsSchema = z.object({
   mode: z.enum(['auto', 'review']).default('auto'),

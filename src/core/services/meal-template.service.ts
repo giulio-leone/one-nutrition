@@ -5,13 +5,10 @@
  * Segue pattern FoodService per consistenza
  */
 
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { IMealTemplateRepository, MealTemplateEntity, UpdateMealTemplateInput } from '@giulio-leone/core/repositories';
+import { getMealTemplateRepo } from '@giulio-leone/core';
+import type { MealTemplateEntity, UpdateMealTemplateInput } from '@giulio-leone/core/repositories';
 import { createId } from '@giulio-leone/lib-shared';
 import type { MealTemplate, Meal } from '@giulio-leone/types';
-
-const getMealTemplateRepo = () =>
-  ServiceRegistry.getInstance().resolve<IMealTemplateRepository>(REPO_TOKENS.MEAL_TEMPLATE);
 
 export class MealTemplateService {
   /**

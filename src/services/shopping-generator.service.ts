@@ -7,17 +7,9 @@
  * Hexagonal: depends on Prisma for persistence, AI SDK for generation.
  */
 
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { INutritionPlanRepository } from '@giulio-leone/core/repositories';
-import type { IAgendaRepository } from '@giulio-leone/core/repositories';
+import { getNutritionRepo as getNutritionPlanRepo, getAgendaRepo } from '@giulio-leone/core';
 import { createId } from '@giulio-leone/lib-shared';
 import type { ShoppingPreferences } from './shopping-preferences.schema';
-
-const getNutritionPlanRepo = () =>
-  ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
-
-const getAgendaRepo = () =>
-  ServiceRegistry.getInstance().resolve<IAgendaRepository>(REPO_TOKENS.AGENDA);
 
 // --- Types ---
 

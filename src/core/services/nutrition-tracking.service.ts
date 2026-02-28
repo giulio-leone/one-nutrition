@@ -10,9 +10,7 @@
  * - Dependency Inversion: Depends on repository abstractions (Hexagonal)
  */
 
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { INutritionDayLogRepository } from '@giulio-leone/core/repositories';
-import type { INutritionPlanRepository } from '@giulio-leone/core/repositories';
+import { getNutritionDayLogRepo as getDayLogRepo, getNutritionRepo as getNutritionPlanRepo } from '@giulio-leone/core';
 import type {
   NutritionDayLog,
   CreateNutritionDayLogRequest,
@@ -24,15 +22,6 @@ import type {
 import { toMacros, ensureDecimalNumber } from '@giulio-leone/lib-shared';
 
 import { logger } from '@giulio-leone/lib-core';
-
-/** Resolve repositories from service registry */
-function getDayLogRepo(): INutritionDayLogRepository {
-  return ServiceRegistry.getInstance().resolve<INutritionDayLogRepository>(REPO_TOKENS.NUTRITION_DAY_LOG);
-}
-
-function getNutritionPlanRepo(): INutritionPlanRepository {
-  return ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
-}
 
 /**
  * Convert database record to domain type

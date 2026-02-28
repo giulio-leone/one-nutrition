@@ -6,8 +6,7 @@
  * Dependency Inversion: Depends on repository abstractions (Hexagonal)
  */
 
-import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
-import type { INutritionTemplateRepository } from '@giulio-leone/core/repositories';
+import { getNutritionTemplateRepo as getTemplateRepo } from '@giulio-leone/core';
 import { logger } from '@giulio-leone/lib-core';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
 import type {
@@ -27,11 +26,6 @@ interface ListTemplatesOptions {
   offset?: number;
   sortBy?: 'createdAt' | 'lastUsedAt' | 'usageCount' | 'name';
   sortOrder?: 'asc' | 'desc';
-}
-
-/** Resolve repository from service registry */
-function getTemplateRepo(): INutritionTemplateRepository {
-  return ServiceRegistry.getInstance().resolve<INutritionTemplateRepository>(REPO_TOKENS.NUTRITION_TEMPLATE);
 }
 
 /**
