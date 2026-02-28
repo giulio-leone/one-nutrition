@@ -97,6 +97,8 @@ function computeMacroAdherence(
   logs: DailyNutritionLog[],
   targets: NutritionPlanTargets
 ): MacroAdherence {
+  if (logs.length === 0) return { proteinAdherence: 0, carbAdherence: 0, fatAdherence: 0, averageProteinG: 0, averageCarbG: 0, averageFatG: 0, targetProteinG: targets.proteinG, targetCarbG: targets.carbG, targetFatG: targets.fatG };
+
   const n = logs.length;
   const avgProtein = logs.reduce((s, l) => s + l.proteinG, 0) / n;
   const avgCarb = logs.reduce((s, l) => s + l.carbG, 0) / n;
@@ -119,6 +121,8 @@ function computeCalorieVariance(
   logs: DailyNutritionLog[],
   targets: NutritionPlanTargets
 ): CalorieVariance {
+  if (logs.length === 0) return { averageCalories: 0, targetCalories: targets.dailyCalories, variancePercent: 0, standardDeviation: 0, consistentDays: 0, totalDays: 0 };
+
   const calories = logs.map((l) => l.totalCalories);
   const n = calories.length;
   const avg = calories.reduce((s, c) => s + c, 0) / n;
