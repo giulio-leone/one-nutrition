@@ -5,7 +5,7 @@
 
 const registryStore = new Map<string, unknown>();
 
-export const ServiceRegistry = {
+const _registry = {
   resolve: <T>(token: string): T => {
     const service = registryStore.get(token);
     if (!service) {
@@ -26,10 +26,17 @@ export const ServiceRegistry = {
   },
 };
 
+export const ServiceRegistry = {
+  ..._registry,
+  /** Mirror real ServiceRegistry.getInstance() — returns the same mock object */
+  getInstance: () => _registry,
+};
+
 export const REPO_TOKENS = {
   WORKOUT: 'WORKOUT_REPOSITORY',
   WORKOUT_SESSION: 'WORKOUT_SESSION_REPOSITORY',
   WORKOUT_TEMPLATE: 'WORKOUT_TEMPLATE_REPOSITORY',
+  NUTRITION: 'NUTRITION_REPOSITORY',
   NUTRITION_PLAN: 'NUTRITION_PLAN_REPOSITORY',
   NUTRITION_DAY_LOG: 'NUTRITION_DAY_LOG_REPOSITORY',
   NUTRITION_TEMPLATE: 'NUTRITION_TEMPLATE_REPOSITORY',
