@@ -3,14 +3,13 @@
  *
  * Servizio unificato per gestione template nutrizionali (Meal, Day, Week)
  * Segue principi SOLID: Single Responsibility, Open/Closed, DRY
+ * Dependency Inversion: Depends on repository abstractions (Hexagonal)
  */
 
-import { prisma } from '@giulio-leone/lib-core';
-
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { INutritionTemplateRepository } from '@giulio-leone/core/repositories';
 import { logger } from '@giulio-leone/lib-core';
-import { Prisma } from '@prisma/client';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
-import { toPrismaJsonValue } from '@giulio-leone/lib-shared';
 import type {
   NutritionTemplate,
   NutritionTemplateType,
@@ -28,6 +27,11 @@ interface ListTemplatesOptions {
   offset?: number;
   sortBy?: 'createdAt' | 'lastUsedAt' | 'usageCount' | 'name';
   sortOrder?: 'asc' | 'desc';
+}
+
+/** Resolve repository from service registry */
+function getTemplateRepo(): INutritionTemplateRepository {
+  return ServiceRegistry.getInstance().resolve<INutritionTemplateRepository>(REPO_TOKENS.NUTRITION_TEMPLATE);
 }
 
 /**
@@ -77,38 +81,31 @@ export class NutritionTemplateService {
       isPublic?: boolean;
     }
   ): Promise<NutritionTemplate> {
-    // Validazione nome
     if (!data.name || data.name.trim().length === 0) {
       throw new Error('Il nome del template è obbligatorio');
     }
 
-    // Validazione tipo
     if (!['meal', 'day', 'week'].includes(data.type)) {
       throw new Error("Il tipo deve essere 'meal', 'day' o 'week'");
     }
 
-    // Validazione data
     validateTemplateData(data.type, data.data);
 
-    // Validazione tags (max 10)
     if (data.tags && data.tags.length > 10) {
       throw new Error('Massimo 10 tags consentiti');
     }
 
-    const template = await prisma.nutrition_templates.create({
-      data: {
-        id: createId(),
-        userId,
-        type: data.type,
-        name: data.name.trim(),
-        description: data.description?.trim() || null,
-        category: data.category?.trim() || null,
-        tags: data.tags || [],
-        data: toPrismaJsonValue(data.data as Record<string, unknown>),
-        isPublic: data.isPublic || false,
-        usageCount: 0,
-        lastUsedAt: null,
-      },
+    const repo = getTemplateRepo();
+    const template = await repo.create({
+      id: createId(),
+      userId,
+      type: data.type,
+      name: data.name.trim(),
+      description: data.description?.trim() || null,
+      category: data.category?.trim() || null,
+      tags: data.tags || [],
+      data: data.data,
+      isPublic: data.isPublic || false,
     });
 
     return this.mapToNutritionTemplate(template);
@@ -121,78 +118,42 @@ export class NutritionTemplateService {
     userId: string,
     options: ListTemplatesOptions = {}
   ): Promise<NutritionTemplate[]> {
-    const logPrefix = '[NutritionTemplateService] listTemplates error';
-    const where: Prisma.nutrition_templatesWhereInput = {
-      userId,
-    };
-
-    // Filtro tipo
-    if (options.type) {
-      where.type = options.type;
-    }
-
-    // Filtro categoria
-    if (options.category) {
-      where.category = options.category;
-    }
-
-    // Filtro tags (almeno uno deve matchare)
-    if (options.tags && options.tags.length > 0) {
-      where.tags = {
-        hasSome: options.tags,
-      };
-    }
-
-    // Ricerca su nome/descrizione
-    if (options.search && options.search.length >= 2) {
-      where.OR = [
-        { name: { contains: options.search, mode: 'insensitive' } },
-        { description: { contains: options.search, mode: 'insensitive' } },
-        { tags: { has: options.search } },
-      ];
-    }
-
-    // Ordinamento
-    let orderBy:
-      | Prisma.nutrition_templatesOrderByWithRelationInput
-      | Prisma.nutrition_templatesOrderByWithRelationInput[];
     const sortBy = options.sortBy || 'lastUsedAt';
     const sortOrder = options.sortOrder || 'desc';
 
+    let orderBy: Record<string, string> | Record<string, string>[];
     switch (sortBy) {
       case 'createdAt':
         orderBy = { createdAt: sortOrder };
         break;
       case 'lastUsedAt':
-        // Usare ordinamento singolo, Prisma gestisce null automaticamente
-        // Per desc: null vengono alla fine, per asc: null vengono all'inizio
         orderBy = { lastUsedAt: sortOrder };
         break;
       case 'usageCount':
-        orderBy = [{ usageCount: sortOrder }, { createdAt: 'desc' }];
+        orderBy = [{ usageCount: sortOrder }, { createdAt: 'desc' }] as unknown as Record<string, string>;
         break;
       case 'name':
-        orderBy = [{ name: sortOrder }, { createdAt: 'desc' }];
+        orderBy = [{ name: sortOrder }, { createdAt: 'desc' }] as unknown as Record<string, string>;
         break;
       default:
-        // Default: ordina per createdAt
         orderBy = { createdAt: 'desc' };
     }
 
     try {
-      const templates = await prisma.nutrition_templates.findMany({
-        where,
-        orderBy,
+      const repo = getTemplateRepo();
+      const templates = await repo.findByUser(userId, {
+        type: options.type,
+        category: options.category,
+        tags: options.tags,
+        search: options.search && options.search.length >= 2 ? options.search : undefined,
+        orderBy: orderBy as Record<string, 'asc' | 'desc'>,
         take: options.limit || 50,
         skip: options.offset || 0,
       });
 
-      return templates.map((t: any) => this.mapToNutritionTemplate(t));
+      return templates.map((t) => this.mapToNutritionTemplate(t));
     } catch (error: unknown) {
-      logger.error(logPrefix, error);
-      logger.error('[NutritionTemplateService] where clause:', JSON.stringify(where, null, 2));
-      logger.error('[NutritionTemplateService] orderBy:', JSON.stringify(orderBy, null, 2));
-      logger.error('[NutritionTemplateService] options:', JSON.stringify(options, null, 2));
+      logger.error('[NutritionTemplateService] Error listing templates:', error);
       throw error;
     }
   }
@@ -201,12 +162,8 @@ export class NutritionTemplateService {
    * Recupera template per ID
    */
   static async getTemplateById(id: string, userId: string): Promise<NutritionTemplate | null> {
-    const template = await prisma.nutrition_templates.findFirst({
-      where: {
-        id,
-        OR: [{ userId }, { isPublic: true }],
-      },
-    });
+    const repo = getTemplateRepo();
+    const template = await repo.findByIdForUser(id, userId);
 
     if (!template) return null;
 
@@ -228,50 +185,30 @@ export class NutritionTemplateService {
       isPublic?: boolean;
     }
   ): Promise<NutritionTemplate> {
-    // Verifica esistenza e proprietà
-    const existing = await prisma.nutrition_templates.findFirst({
-      where: { id, userId },
-    });
+    const repo = getTemplateRepo();
+    const existing = await repo.findByIdForUser(id, userId);
 
     if (!existing) {
       throw new Error('Template non trovato o non autorizzato');
     }
 
-    // Validazione data se fornita
     if (data.data) {
-      validateTemplateData(existing.type, data.data);
+      validateTemplateData(existing.type as NutritionTemplateType, data.data);
     }
 
-    // Validazione tags
     if (data.tags && data.tags.length > 10) {
       throw new Error('Massimo 10 tags consentiti');
     }
 
-    const updateData: Prisma.nutrition_templatesUpdateInput = {};
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name.trim();
+    if (data.description !== undefined) updateData.description = data.description?.trim() || null;
+    if (data.category !== undefined) updateData.category = data.category?.trim() || null;
+    if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.data !== undefined) updateData.data = data.data;
+    if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
 
-    if (data.name !== undefined) {
-      updateData.name = data.name.trim();
-    }
-    if (data.description !== undefined) {
-      updateData.description = data.description?.trim() || null;
-    }
-    if (data.category !== undefined) {
-      updateData.category = data.category?.trim() || null;
-    }
-    if (data.tags !== undefined) {
-      updateData.tags = data.tags;
-    }
-    if (data.data !== undefined) {
-      updateData.data = toPrismaJsonValue(data.data as Record<string, unknown>);
-    }
-    if (data.isPublic !== undefined) {
-      updateData.isPublic = data.isPublic;
-    }
-
-    const updated = await prisma.nutrition_templates.update({
-      where: { id },
-      data: updateData,
-    });
+    const updated = await repo.update(id, updateData);
 
     return this.mapToNutritionTemplate(updated);
   }
@@ -280,37 +217,29 @@ export class NutritionTemplateService {
    * Elimina template
    */
   static async deleteTemplate(id: string, userId: string): Promise<void> {
-    const existing = await prisma.nutrition_templates.findFirst({
-      where: { id, userId },
-    });
+    const repo = getTemplateRepo();
+    const existing = await repo.findByIdForUser(id, userId);
 
     if (!existing) {
       throw new Error('Template non trovato o non autorizzato');
     }
 
-    await prisma.nutrition_templates.delete({
-      where: { id },
-    });
+    await repo.delete(id);
   }
 
   /**
    * Incrementa contatore utilizzi
    */
   static async incrementUsage(id: string): Promise<void> {
-    await prisma.nutrition_templates.update({
-      where: { id },
-      data: {
-        usageCount: { increment: 1 },
-        lastUsedAt: new Date(),
-      },
-    });
+    const repo = getTemplateRepo();
+    await repo.incrementUsage(id);
   }
 
   /**
-   * Mappa da Prisma model a NutritionTemplate
+   * Mappa da repository entity a domain NutritionTemplate
    */
   private static mapToNutritionTemplate(
-    template: Prisma.nutrition_templatesGetPayload<{ include: {} }>
+    template: { id: string; type: string; name: string; description: string | null; category: string | null; tags: string[]; data: unknown; isPublic: boolean; usageCount: number; lastUsedAt: Date | null; userId: string | null; createdAt: Date; updatedAt: Date }
   ): NutritionTemplate {
     const logPrefix = '[NutritionTemplateService] mapToNutritionTemplate';
     try {
@@ -331,7 +260,6 @@ export class NutritionTemplateService {
       };
     } catch (error: unknown) {
       logger.error(logPrefix, error);
-      logger.error('[NutritionTemplateService] template data:', JSON.stringify(template, null, 2));
       throw error;
     }
   }

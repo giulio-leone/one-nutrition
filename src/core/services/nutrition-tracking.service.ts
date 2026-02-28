@@ -7,10 +7,12 @@
  * Follows SOLID principles:
  * - Single Responsibility: Only manages nutrition day log data
  * - Open/Closed: Extendable without modification
- * - Dependency Inversion: Depends on Prisma abstraction
+ * - Dependency Inversion: Depends on repository abstractions (Hexagonal)
  */
 
-import { prisma } from '@giulio-leone/lib-core';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { INutritionDayLogRepository } from '@giulio-leone/core/repositories';
+import type { INutritionPlanRepository } from '@giulio-leone/core/repositories';
 import type {
   NutritionDayLog,
   CreateNutritionDayLogRequest,
@@ -19,26 +21,34 @@ import type {
   Macros,
   Meal,
 } from '@giulio-leone/types';
-import { Prisma, type nutrition_day_logs } from '@prisma/client';
 import { toMacros, ensureDecimalNumber } from '@giulio-leone/lib-shared';
 
 import { logger } from '@giulio-leone/lib-core';
-type NutritionDayLogRecord = nutrition_day_logs;
 
-const db = prisma;
+/** Resolve repositories from service registry */
+function getDayLogRepo(): INutritionDayLogRepository {
+  return ServiceRegistry.getInstance().resolve<INutritionDayLogRepository>(REPO_TOKENS.NUTRITION_DAY_LOG);
+}
+
+function getNutritionPlanRepo(): INutritionPlanRepository {
+  return ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
+}
 
 /**
  * Convert database record to domain type
  */
-function toNutritionDayLog(record: NutritionDayLogRecord): NutritionDayLog {
-  const waterIntakeValue = record.waterIntake;
+function toNutritionDayLog(record: {
+  id: string; userId: string | null; planId: string; weekNumber: number; dayNumber: number;
+  date: Date; meals: unknown; actualDailyMacros: unknown | null; waterIntake: number | null;
+  notes: string | null; createdAt: Date; updatedAt: Date;
+}): NutritionDayLog {
   const waterIntake =
-    waterIntakeValue !== null && waterIntakeValue !== undefined
-      ? ensureDecimalNumber(Number(waterIntakeValue))
+    record.waterIntake !== null && record.waterIntake !== undefined
+      ? ensureDecimalNumber(Number(record.waterIntake))
       : null;
   const actualDailyMacros =
     record.actualDailyMacros !== null && record.actualDailyMacros !== undefined
-      ? toMacros(record.actualDailyMacros as Prisma.JsonValue)
+      ? toMacros(record.actualDailyMacros as any)
       : null;
 
   return {
@@ -61,9 +71,6 @@ import { normalizeNutritionPlan, type PrismaNutritionPlan } from '../transformer
 
 /**
  * Create a new nutrition day log
- *
- * Initializes a log with the meals from the specified plan day.
- * Log starts with all tracking fields empty (to be filled by user).
  */
 export async function createNutritionDayLog(
   userId: string,
@@ -79,9 +86,8 @@ export async function createNutritionDayLog(
   });
 
   // Fetch the nutrition plan to get the meals for this day
-  const rawPlan = await prisma.nutrition_plans.findUnique({
-    where: { id: planId },
-  });
+  const planRepo = getNutritionPlanRepo();
+  const rawPlan = await planRepo.findById(planId);
 
   if (!rawPlan) {
     throw new Error('Piano nutrizionale non trovato');
@@ -91,19 +97,17 @@ export async function createNutritionDayLog(
     throw new Error('Non hai i permessi per accedere a questo piano');
   }
 
-  // Normalize plan to ensure structure consistency (fixes empty meals issue)
-  const plan = normalizeNutritionPlan(rawPlan as PrismaNutritionPlan);
+  // Normalize plan to ensure structure consistency
+  const plan = normalizeNutritionPlan(rawPlan as unknown as PrismaNutritionPlan);
 
-  // Debug: Log plan weeks structure
   logger.warn('[createNutritionDayLog] Plan weeks structure (normalized):', {
     planId: plan.id,
     weeksCount: plan.weeks.length,
     firstWeekDays: plan.weeks[0]?.days?.length ?? 0,
   });
 
-  // Extract meals from the plan's week/day structure using normalized plan
-  const week = plan.weeks.find((w: any) => w.weekNumber === weekNumber);
-  const day = week?.days.find((d: any) => d.dayNumber === dayNumber);
+  const week = plan.weeks.find((w: { weekNumber: number }) => w.weekNumber === weekNumber);
+  const day = week?.days.find((d: { dayNumber: number }) => d.dayNumber === dayNumber);
 
   if (!day) {
     logger.error('[createNutritionDayLog] Day not found:', {
@@ -124,32 +128,23 @@ export async function createNutritionDayLog(
   const logDate = date || new Date();
 
   // Check if log already exists for this day
-  const existing = await db.nutrition_day_logs.findFirst({
-    where: {
-      userId,
-      planId,
-      weekNumber,
-      dayNumber,
-      date: logDate,
-    },
-  });
+  const dayLogRepo = getDayLogRepo();
+  const existing = await dayLogRepo.findForDay(userId, planId, weekNumber, dayNumber, logDate);
 
   if (existing) {
     throw new Error('Esiste già un log per questo giorno');
   }
 
-  // Create log with meals (tracking fields will be filled during day)
-  const log = await db.nutrition_day_logs.create({
-    data: {
-      userId,
-      planId,
-      weekNumber,
-      dayNumber,
-      date: logDate,
-      meals: day.meals as Prisma.InputJsonValue, // Normalized meals are safe
-      actualDailyMacros: Prisma.JsonNull,
-      notes,
-    },
+  // Create log with meals
+  const log = await dayLogRepo.create({
+    userId,
+    planId,
+    weekNumber,
+    dayNumber,
+    date: logDate,
+    meals: day.meals,
+    actualDailyMacros: null,
+    notes,
   });
 
   return toNutritionDayLog(log);
@@ -162,15 +157,13 @@ export async function getNutritionDayLog(
   logId: string,
   userId: string
 ): Promise<NutritionDayLog | null> {
-  const log = await db.nutrition_day_logs.findUnique({
-    where: { id: logId },
-  });
+  const repo = getDayLogRepo();
+  const log = await repo.findById(logId);
 
   if (!log) {
     return null;
   }
 
-  // Verify ownership
   if (log.userId !== userId) {
     throw new Error('Non hai i permessi per accedere a questo log');
   }
@@ -180,26 +173,14 @@ export async function getNutritionDayLog(
 
 /**
  * Get all nutrition day logs for a user
- *
- * @param userId - User ID
- * @param planId - Optional filter by plan ID
- * @param limit - Max number of logs to return
  */
 export async function getNutritionDayLogs(
   userId: string,
   planId?: string,
   limit?: number
 ): Promise<NutritionDayLog[]> {
-  const logs = await db.nutrition_day_logs.findMany({
-    where: {
-      userId,
-      ...(planId && { planId }),
-    },
-    orderBy: {
-      date: 'desc',
-    },
-    ...(limit && { take: limit }),
-  });
+  const repo = getDayLogRepo();
+  const logs = await repo.findByUser(userId, planId, limit);
 
   return logs.map(toNutritionDayLog);
 }
@@ -223,15 +204,8 @@ export async function getLogForDay(
 ): Promise<NutritionDayLog | null> {
   const queryDate = date || new Date();
 
-  const log = await db.nutrition_day_logs.findFirst({
-    where: {
-      userId,
-      planId,
-      weekNumber,
-      dayNumber,
-      date: queryDate,
-    },
-  });
+  const repo = getDayLogRepo();
+  const log = await repo.findForDay(userId, planId, weekNumber, dayNumber, queryDate);
 
   if (!log) {
     return null;
@@ -242,8 +216,6 @@ export async function getLogForDay(
 
 /**
  * Update a nutrition day log
- *
- * Typically called during or after meals to update tracking data.
  */
 export async function updateNutritionDayLog(
   logId: string,
@@ -256,22 +228,16 @@ export async function updateNutritionDayLog(
     throw new Error('Log non trovato');
   }
 
-  const updated = await db.nutrition_day_logs.update({
-    where: { id: logId },
-    data: {
-      ...(updates.meals && { meals: updates.meals }),
-      ...(updates.actualDailyMacros !== undefined && {
-        actualDailyMacros:
-          updates.actualDailyMacros === null
-            ? Prisma.JsonNull
-            : (updates.actualDailyMacros as Prisma.InputJsonValue),
-      }),
-      ...(updates.waterIntake !== undefined && {
-        waterIntake: updates.waterIntake !== null ? updates.waterIntake : null,
-      }),
-      ...(updates.notes !== undefined && { notes: updates.notes }),
-      updatedAt: new Date(),
-    },
+  const repo = getDayLogRepo();
+  const updated = await repo.update(logId, {
+    ...(updates.meals && { meals: updates.meals }),
+    ...(updates.actualDailyMacros !== undefined && {
+      actualDailyMacros: updates.actualDailyMacros ?? null,
+    }),
+    ...(updates.waterIntake !== undefined && {
+      waterIntake: updates.waterIntake !== null ? updates.waterIntake : null,
+    }),
+    ...(updates.notes !== undefined && { notes: updates.notes }),
   });
 
   return toNutritionDayLog(updated);
@@ -287,23 +253,19 @@ export async function deleteNutritionDayLog(logId: string, userId: string): Prom
     throw new Error('Log non trovato');
   }
 
-  await db.nutrition_day_logs.delete({
-    where: { id: logId },
-  });
+  const repo = getDayLogRepo();
+  await repo.delete(logId);
 }
 
 /**
  * Get nutrition plan statistics
- *
- * Calculates adherence rate, average macros, etc. for a plan.
  */
 export async function getNutritionPlanStats(
   planId: string,
   userId: string
 ): Promise<NutritionPlanStats> {
-  const plan = await prisma.nutrition_plans.findUnique({
-    where: { id: planId },
-  });
+  const planRepo = getNutritionPlanRepo();
+  const plan = await planRepo.findById(planId);
 
   if (!plan) {
     throw new Error('Piano nutrizionale non trovato');
@@ -313,27 +275,21 @@ export async function getNutritionPlanStats(
     throw new Error('Non hai i permessi per accedere a questo piano');
   }
 
-  const logs = await db.nutrition_day_logs.findMany({
-    where: {
-      planId,
-      userId,
-    },
-  });
+  const dayLogRepo = getDayLogRepo();
+  const logs = await dayLogRepo.findByUser(userId, planId);
 
-  // Use helper function for future-proof access to plan structure
   const { getNutritionPlanTotalDays } = await import('@giulio-leone/lib-shared');
   const { normalizeNutritionPlan: normalizePlanDynamic } =
     await import('../transformers/plan-transform');
-  const normalizedPlan = normalizePlanDynamic(plan as PrismaNutritionPlan);
+  const normalizedPlan = normalizePlanDynamic(plan as unknown as PrismaNutritionPlan);
   const totalDays = getNutritionPlanTotalDays(normalizedPlan);
 
   const loggedDays = logs.length;
 
-  // Calculate average macros from logs with actualDailyMacros
-  const logsWithMacros = logs.filter((l: any) => l.actualDailyMacros !== null);
+  const logsWithMacros = logs.filter((l) => l.actualDailyMacros !== null);
   const totalMacros = logsWithMacros.reduce(
-    (acc: { calories: number; protein: number; carbs: number; fats: number }, log: any) => {
-      const macros = toMacros(log.actualDailyMacros as Prisma.JsonValue);
+    (acc, log) => {
+      const macros = toMacros(log.actualDailyMacros as any);
       return {
         calories: acc.calories + (macros?.calories || 0),
         protein: acc.protein + (macros?.protein || 0),
@@ -346,10 +302,9 @@ export async function getNutritionPlanStats(
 
   const avgCount = logsWithMacros.length || 1;
 
-  // Calculate average water intake
-  const logsWithWater = logs.filter((l: any) => l.waterIntake !== null);
+  const logsWithWater = logs.filter((l) => l.waterIntake !== null);
   const totalWater = logsWithWater.reduce(
-    (sum: number, log: any) => sum + Number(log.waterIntake || 0),
+    (sum, log) => sum + Number(log.waterIntake || 0),
     0
   );
   const averageWaterIntake =
@@ -373,10 +328,7 @@ export async function getNutritionPlanStats(
 }
 
 /**
- * Calculate actual daily macros from meals
- *
- * Helper function to sum up macros from all foods in meals.
- * Uses actualMacros if present, otherwise uses planned macros.
+ * Calculate actual daily macros from meals (pure function)
  */
 export function calculateActualDailyMacros(meals: Array<Record<string, unknown>>): Macros {
   return meals.reduce<Macros>(
