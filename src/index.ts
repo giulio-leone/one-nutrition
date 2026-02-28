@@ -36,6 +36,9 @@ export {
 
 // Shopping
 export { ShoppingGeneratorService } from './services/shopping-generator.service';
+
+// Adaptation pipeline (M3)
+export * from './adaptation';
 export {
   shoppingPreferencesSchema,
   type ShoppingPreferences,
