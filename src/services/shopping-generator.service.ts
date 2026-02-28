@@ -38,19 +38,6 @@ export class ShoppingGeneratorService {
     // 1. Load the nutrition plan
     const plan = await prisma.nutrition_plans.findUniqueOrThrow({
       where: { id: planId },
-      include: {
-        weeks: {
-          include: {
-            days: {
-              include: {
-                meals: {
-                  include: { foods: true },
-                },
-              },
-            },
-          },
-        },
-      },
     });
 
     // 2. Extract unique foods and aggregate quantities
@@ -167,10 +154,9 @@ export class ShoppingGeneratorService {
     // Exclude items matching user exclusions
     if (preferences.excludedCategories?.length) {
       const excluded = new Set(
-        preferences.excludedCategories.map((c) => c.toLowerCase()),
+        preferences.excludedCategories.map((c: any) => c.toLowerCase()),
       );
-      filtered = filtered.filter(
-        (item) => !excluded.has(item.category.toLowerCase()),
+      filtered = filtered.filter((item: any) => !excluded.has(item.category.toLowerCase()),
       );
     }
 

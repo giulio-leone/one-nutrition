@@ -332,7 +332,7 @@ export async function getNutritionPlanStats(
   // Calculate average macros from logs with actualDailyMacros
   const logsWithMacros = logs.filter((l: any) => l.actualDailyMacros !== null);
   const totalMacros = logsWithMacros.reduce(
-    (acc: { calories: number; protein: number; carbs: number; fats: number }, log) => {
+    (acc: { calories: number; protein: number; carbs: number; fats: number }, log: any) => {
       const macros = toMacros(log.actualDailyMacros as Prisma.JsonValue);
       return {
         calories: acc.calories + (macros?.calories || 0),
@@ -349,7 +349,7 @@ export async function getNutritionPlanStats(
   // Calculate average water intake
   const logsWithWater = logs.filter((l: any) => l.waterIntake !== null);
   const totalWater = logsWithWater.reduce(
-    (sum: number, log) => sum + Number(log.waterIntake || 0),
+    (sum: number, log: any) => sum + Number(log.waterIntake || 0),
     0
   );
   const averageWaterIntake =

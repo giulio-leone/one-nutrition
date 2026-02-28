@@ -13,7 +13,6 @@ import {
   getMacroPercentages,
   formatNutritionTargets,
   ACTIVITY_MULTIPLIERS,
-  KCAL_PER_GRAM,
   SAFETY_RANGES,
   type UserMetrics,
   type NutritionTargets,
@@ -179,7 +178,6 @@ describe('calculateMacrosByDietType', () => {
   });
 
   it('keto diet has very low carbs', () => {
-    const macros = calculateMacrosByDietType(2000, 'keto', 75, 'maintenance');
     // Keto: carbsRatio=0.05, fatRatio=0.7
     const ketoMacros = calculateMacrosByDietType(2000, 'keto', 75, 'maintenance');
     const omniMacros = calculateMacrosByDietType(2000, 'omnivore', 75, 'maintenance');

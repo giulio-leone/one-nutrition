@@ -44,7 +44,7 @@ export function getNutritionPlanTotalDays(plan: NutritionPlan): number {
  */
 export function getNutritionPlanDay(plan: NutritionPlan, dayNumber: number): NutritionDay | null {
   const days = getAllNutritionPlanDays(plan);
-  return days.find((d) => d.dayNumber === dayNumber) || null;
+  return days.find((d: any) => d.dayNumber === dayNumber) || null;
 }
 
 /**
@@ -55,11 +55,11 @@ export function getNutritionPlanDayByWeek(
   weekNumber: number,
   dayNumber: number
 ): NutritionDay | null {
-  const week = plan.weeks?.find((w) => w.weekNumber === weekNumber);
+  const week = plan.weeks?.find((w: any) => w.weekNumber === weekNumber);
   if (!week) {
     return null;
   }
-  return week.days?.find((d) => d.dayNumber === dayNumber) || null;
+  return week.days?.find((d: any) => d.dayNumber === dayNumber) || null;
 }
 
 /**
@@ -69,7 +69,7 @@ export function getNutritionPlanWeek(
   plan: NutritionPlan,
   weekNumber: number
 ): NutritionWeek | null {
-  return plan.weeks?.find((w) => w.weekNumber === weekNumber) || null;
+  return plan.weeks?.find((w: any) => w.weekNumber === weekNumber) || null;
 }
 
 /**

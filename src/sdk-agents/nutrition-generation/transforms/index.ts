@@ -148,7 +148,7 @@ export function distributeMealMacros(input: DistributeMealMacrosInput): MealTarg
 
   const config = mealConfigs[mealsPerDay] ?? mealConfigs[5]!;
 
-  return config.map((meal) => ({
+  return config.map((meal: any) => ({
     type: meal.type,
     name: meal.name,
     time: meal.time,
@@ -181,7 +181,7 @@ export function assemblePlan(input: AssemblePlanInput) {
   const planId = nanoid();
 
   // Build weekly rotation from pattern codes
-  const patternCodes = patterns.map((p) => p.patternCode);
+  const patternCodes = patterns.map((p: any) => p.patternCode);
   const weeklyRotation: PatternCode[] = [];
   for (let i = 0; i < 7; i++) {
     weeklyRotation.push(patternCodes[i % patternCodes.length]!);
@@ -193,15 +193,15 @@ export function assemblePlan(input: AssemblePlanInput) {
 
   for (let weekNum = 1; weekNum <= goals.durationWeeks; weekNum++) {
     const days = weeklyRotation.map((patternCode, dayIndex) => {
-      const pattern = patterns.find((p) => p.patternCode === patternCode);
+      const pattern = patterns.find((p: any) => p.patternCode === patternCode);
       const meals =
-        pattern?.meals?.map((meal) => ({
+        pattern?.meals?.map((meal: any) => ({
           id: meal.id || nanoid(),
           name: meal.name,
           type: meal.type,
           time: meal.time,
           foods:
-            meal.foods?.map((food) => ({
+            meal.foods?.map((food: any) => ({
               id: food.id || nanoid(),
               foodItemId: food.foodItemId,
               name: food.name,
@@ -212,8 +212,7 @@ export function assemblePlan(input: AssemblePlanInput) {
           totalMacros: meal.totalMacros || { calories: 0, protein: 0, carbs: 0, fats: 0 },
         })) || [];
 
-      const totalMacros = meals.reduce(
-        (acc, meal) => ({
+      const totalMacros = meals.reduce((acc: any, meal: any) => ({
           calories: acc.calories + (meal.totalMacros?.calories || 0),
           protein: acc.protein + (meal.totalMacros?.protein || 0),
           carbs: acc.carbs + (meal.totalMacros?.carbs || 0),
@@ -245,9 +244,9 @@ export function assemblePlan(input: AssemblePlanInput) {
 
   // Count unique foods
   const foodIds = new Set<string>();
-  patterns.forEach((pattern) => {
-    pattern.meals.forEach((meal) => {
-      meal.foods.forEach((food) => {
+  patterns.forEach((pattern: any) => {
+    pattern.meals.forEach((meal: any) => {
+      meal.foods.forEach((food: any) => {
         foodIds.add(food.foodItemId);
       });
     });

@@ -6,6 +6,7 @@
  */
 
 import { AIModelService } from '@giulio-leone/lib-ai';
+import { resolveProviderFromModelId } from '@giulio-leone/types/ai';
 
 // --- Types ---
 
@@ -43,8 +44,8 @@ export class NutritionGenerationConfigService {
 
       const resolved: NutritionModelConfig = {
         modelId: config.modelId,
-        provider: config.provider,
-        temperature: config.temperature ?? 0.7,
+        provider: resolveProviderFromModelId(config.modelId),
+        temperature: 0.7,
       };
 
       logger?.info('MODEL', 'Model resolved', {

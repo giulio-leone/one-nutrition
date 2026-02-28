@@ -153,16 +153,16 @@ export const getFoodCatalog = {
     let foods = [...MOCK_FOODS];
 
     if (category) {
-      foods = foods.filter((f) => f.category === category);
+      foods = foods.filter((f: any) => f.category === category);
     }
 
     if (tags && tags.length > 0) {
-      foods = foods.filter((f) => tags.some((tag) => f.tags.includes(tag)));
+      foods = foods.filter((f: any) => tags.some((tag) => f.tags.includes(tag)));
     }
 
     return JSON.stringify({
       count: foods.length,
-      foods: foods.map((f) => ({
+      foods: foods.map((f: any) => ({
         id: f.id,
         name: f.name,
         category: f.category,
@@ -183,7 +183,7 @@ export const calculateFoodMacros = {
     quantity: z.number().describe('Quantity in grams'),
   }),
   execute: async ({ foodId, quantity }: { foodId: string; quantity: number }): Promise<string> => {
-    const food = MOCK_FOODS.find((f) => f.id === foodId);
+    const food = MOCK_FOODS.find((f: any) => f.id === foodId);
     if (!food) {
       return JSON.stringify({ error: `Food ${foodId} not found` });
     }
@@ -233,7 +233,7 @@ export const validateMeal = {
     let totalMacros = { calories: 0, protein: 0, carbs: 0, fats: 0 };
 
     for (const item of foods) {
-      const food = MOCK_FOODS.find((f) => f.id === item.foodId);
+      const food = MOCK_FOODS.find((f: any) => f.id === item.foodId);
       if (!food) {
         return JSON.stringify({ valid: false, error: `Food ${item.foodId} not found` });
       }

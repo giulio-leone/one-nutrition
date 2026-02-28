@@ -179,7 +179,7 @@ export function createNutritionAIContext(): AIParseContext<ImportedNutritionPlan
         contentBase64: content,
         mimeType,
         prompt,
-        schema: ImportedNutritionPlanSchema,
+        schema: ImportedNutritionPlanSchema as any,
         userId,
         fileType,
       });
