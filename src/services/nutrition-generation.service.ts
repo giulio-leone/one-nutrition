@@ -5,9 +5,9 @@
  * Handles initialization, execution, and streaming.
  */
 
-import { resolve } from 'path';
 import { execute } from '@giulio-leone/one-agent/framework/engine';
 import type { ProgressCallback } from '@giulio-leone/agent-contracts';
+import { createLazyService } from '@giulio-leone/lib-shared';
 import { initializeNutritionSchemas } from '../registry';
 import type {
   NutritionGenerationInput,
@@ -41,8 +41,11 @@ export interface GenerateOptions {
 // Service State
 // =============================================================================
 
-let isInitialized = false;
-let basePath: string = '';
+const service = createLazyService({
+  name: 'NutritionGeneration',
+  defaultSubpath: 'submodules/one-nutrition/src',
+  setup: () => initializeNutritionSchemas(),
+});
 
 /**
  * Initialize the nutrition generation service
@@ -50,16 +53,7 @@ let basePath: string = '';
  * @param options.basePath - Path to one-nutrition/src directory
  */
 export function initializeNutritionGeneration(options: { basePath?: string } = {}): void {
-  if (isInitialized) return;
-
-  // Register schemas with SDK registry
-  initializeNutritionSchemas();
-
-  // Use provided basePath or construct from monorepo root
-  // process.cwd() in Next.js = /path/to/CoachOne/apps/next
-  // We need: /path/to/CoachOne/submodules/one-nutrition/src
-  basePath = options.basePath ?? resolve(process.cwd(), '../../submodules/one-nutrition/src');
-  isInitialized = true;
+  service.ensureInitialized(options);
 }
 
 // =============================================================================
@@ -77,10 +71,7 @@ export async function generateNutritionPlan(
   input: NutritionGenerationInput,
   options: GenerateOptions = {}
 ): Promise<NutritionGenerationResult> {
-  // Auto-initialize if needed
-  if (!isInitialized) {
-    initializeNutritionGeneration();
-  }
+  const basePath = service.ensureInitialized();
 
   const startTime = Date.now();
 

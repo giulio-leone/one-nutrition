@@ -4,9 +4,9 @@
  * Service layer for executing food generation via OneAgent SDK v3.1.
  */
 
-import { resolve } from 'path';
 import { execute } from '@giulio-leone/one-agent/framework/engine';
 import type { ProgressCallback } from '@giulio-leone/agent-contracts';
+import { createLazyService } from '@giulio-leone/lib-shared';
 import { initializeNutritionSchemas } from '../registry';
 import type {
   FoodGenerationInput,
@@ -40,8 +40,11 @@ export interface GenerateOptions {
 // Service State
 // =============================================================================
 
-let isInitialized = false;
-let basePath: string = '';
+const service = createLazyService({
+  name: 'FoodGeneration',
+  defaultSubpath: 'submodules/one-nutrition/src',
+  setup: () => initializeNutritionSchemas(),
+});
 
 /**
  * Initialize the food generation service
@@ -49,14 +52,7 @@ let basePath: string = '';
  * @param options.basePath - Path to one-nutrition/src directory
  */
 export function initializeFoodGeneration(options: { basePath?: string } = {}): void {
-  if (isInitialized) return;
-
-  // Register schemas with SDK registry
-  initializeNutritionSchemas();
-
-  // Use provided basePath or construct from monorepo root
-  basePath = options.basePath ?? resolve(process.cwd(), '../../submodules/one-nutrition/src');
-  isInitialized = true;
+  service.ensureInitialized(options);
 }
 
 // =============================================================================
@@ -74,10 +70,7 @@ export async function generateFoods(
   input: FoodGenerationInput,
   options: GenerateOptions = {}
 ): Promise<FoodGenerationResult> {
-  // Auto-initialize if needed
-  if (!isInitialized) {
-    initializeFoodGeneration();
-  }
+  const basePath = service.ensureInitialized();
 
   const startTime = Date.now();
 
