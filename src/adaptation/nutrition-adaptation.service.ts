@@ -214,7 +214,7 @@ function generateAdjustments(analysis: NutritionAdherenceAnalysis): NutritionAdj
       priority: 'medium',
       reason: `Moderate calorie deviation: ${calorieVariance.variancePercent.toFixed(0)}%`,
       before: `${calorieVariance.targetCalories} kcal`,
-      after: `Fine-tune by ~${Math.abs(Math.round(calorieVariance.targetCalories - calorieVariance.averageCalories) * 0.3)} kcal`,
+      after: `Fine-tune by ~${Math.round(Math.abs((calorieVariance.targetCalories - calorieVariance.averageCalories) * 0.3))} kcal`,
     });
   }
 
@@ -279,7 +279,7 @@ function deriveOverallAdherence(
   ) / 3;
 
   // Clamp adherence values to [0, 1] range for scoring
-  const clampedMacro = Math.min(macroAvg, 1);
+  const clampedMacro = Math.max(0, 1 - Math.abs(1 - macroAvg));
   const combined = (clampedMacro + consistencyScore) / 2;
 
   if (combined >= EXCELLENT_THRESHOLD) return 'excellent';
