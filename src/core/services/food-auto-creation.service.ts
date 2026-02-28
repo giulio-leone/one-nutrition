@@ -19,10 +19,10 @@
 
 import { FoodService, normalizeFoodName } from '@giulio-leone/lib-food';
 import type { Macros, NutritionPlan } from '@giulio-leone/types';
-import { prisma } from '@giulio-leone/lib-core';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { IFoodRepository, CreateFoodItemInput } from '@giulio-leone/core/repositories';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
 import { SUPPORTED_FOOD_LOCALES } from '@giulio-leone/constants';
-import { Prisma } from '@prisma/client';
 import { logger } from '@giulio-leone/lib-core';
 import {
   type AIGeneratedFood,
@@ -30,7 +30,10 @@ import {
   aiGeneratedFoodToFoodToCreate,
   AI_FOOD_DEFAULTS,
 } from '@giulio-leone/schemas';
-import { calculateMainMacro, toPrismaJsonValue, type MainMacro } from '@giulio-leone/lib-shared';
+import { calculateMainMacro, type MainMacro } from '@giulio-leone/lib-shared';
+
+const getFoodRepo = () =>
+  ServiceRegistry.getInstance().resolve<IFoodRepository>(REPO_TOKENS.FOOD);
 
 // ============================================================================
 // CONSTANTS
@@ -297,36 +300,30 @@ export class FoodAutoCreationService {
     const description = this.ensureValidDescription(food.description, food.name);
 
     // Crea food con traduzioni per tutti i locali supportati
-    const foodData: Prisma.food_itemsUncheckedCreateInput = {
+    const foodData: CreateFoodItemInput = {
       id: foodId,
       name: food.name,
       nameNormalized,
-      macrosPer100g: toPrismaJsonValue(food.macrosPer100g),
+      macrosPer100g: food.macrosPer100g,
       servingSize: food.servingSize || AI_FOOD_DEFAULTS.servingSize,
       unit: food.unit || AI_FOOD_DEFAULTS.unit,
-      mainMacro: toPrismaJsonValue(mainMacro),
+      mainMacro: mainMacro,
       proteinPct,
       carbPct,
       fatPct,
       brandId: brandId,
-      // Solo aggiungere se validi (non null/undefined/empty)
       ...(food.imageUrl && String(food.imageUrl).trim() !== '' && { imageUrl: food.imageUrl }),
       ...(food.barcode && String(food.barcode).trim() !== '' && { barcode: food.barcode }),
-      food_item_translations: {
-        create: SUPPORTED_FOOD_LOCALES.map((locale: string) => ({
-          id: createId(),
-          locale,
-          name: food.name,
-          description: description,
-        })),
-      },
+      translations: SUPPORTED_FOOD_LOCALES.map((locale: string) => ({
+        id: createId(),
+        locale,
+        name: food.name,
+        description: description,
+      })),
     };
 
     try {
-      const newFood = await prisma.food_items.create({
-        data: foodData,
-        include: { food_item_translations: true },
-      });
+      const newFood = await getFoodRepo().createFood(foodData);
 
       return { id: newFood.id, name: newFood.name };
     } catch (error: any) {
@@ -336,9 +333,7 @@ export class FoodAutoCreationService {
         logger.warn(
           `[FoodAutoCreation] Food "${food.name}" already exists (race condition). Fetching existing...`
         );
-        const existing = await prisma.food_items.findFirst({
-          where: { nameNormalized },
-        });
+        const existing = await getFoodRepo().findFirst({ nameNormalized });
         if (existing) {
           return { id: existing.id, name: existing.name };
         }
@@ -353,20 +348,16 @@ export class FoodAutoCreationService {
   private static async findOrCreateBrand(brandName: string): Promise<string | undefined> {
     const brandNameNormalized = normalizeFoodName(brandName);
     try {
-      const existingBrand = await prisma.food_brands.findFirst({
-        where: { nameNormalized: brandNameNormalized },
-      });
+      const existingBrand = await getFoodRepo().findBrandByNormalizedName(brandNameNormalized);
 
       if (existingBrand) {
         return existingBrand.id;
       }
 
-      const newBrand = await prisma.food_brands.create({
-        data: {
-          id: createId(),
-          name: brandName,
-          nameNormalized: brandNameNormalized,
-        },
+      const newBrand = await getFoodRepo().createBrand({
+        id: createId(),
+        name: brandName,
+        nameNormalized: brandNameNormalized,
       });
       return newBrand.id;
     } catch (error) {

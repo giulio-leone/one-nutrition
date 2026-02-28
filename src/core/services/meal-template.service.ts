@@ -5,10 +5,13 @@
  * Segue pattern FoodService per consistenza
  */
 
-import { prisma } from '@giulio-leone/lib-core';
-import { Prisma } from '@prisma/client';
-import { createId, toPrismaJsonValue } from '@giulio-leone/lib-shared';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { IMealTemplateRepository, MealTemplateEntity, UpdateMealTemplateInput } from '@giulio-leone/core/repositories';
+import { createId } from '@giulio-leone/lib-shared';
 import type { MealTemplate, Meal } from '@giulio-leone/types';
+
+const getMealTemplateRepo = () =>
+  ServiceRegistry.getInstance().resolve<IMealTemplateRepository>(REPO_TOKENS.MEAL_TEMPLATE);
 
 export class MealTemplateService {
   /**
@@ -32,16 +35,14 @@ export class MealTemplateService {
       throw new Error('Il nome del template è obbligatorio');
     }
 
-    const template = await prisma.meal_templates.create({
-      data: {
-        id: createId(),
-        userId,
-        name: data.name.trim(),
-        description: data.description?.trim() || null,
-        meal: toPrismaJsonValue(data.meal as Record<string, unknown>),
-        tags: data.tags || [],
-        isPublic: data.isPublic || false,
-      },
+    const template = await getMealTemplateRepo().create({
+      id: createId(),
+      userId,
+      name: data.name.trim(),
+      description: data.description?.trim() || null,
+      meal: data.meal,
+      tags: data.tags || [],
+      isPublic: data.isPublic || false,
     });
 
     return this.mapToMealTemplate(template);
@@ -59,43 +60,21 @@ export class MealTemplateService {
       offset?: number;
     }
   ): Promise<MealTemplate[]> {
-    const where: Prisma.meal_templatesWhereInput = {
-      userId,
-    };
-
-    if (options?.search) {
-      where.name = {
-        contains: options.search,
-        mode: 'insensitive',
-      };
-    }
-
-    if (options?.tags && options.tags.length > 0) {
-      where.tags = {
-        hasSome: options.tags,
-      };
-    }
-
-    const templates = await prisma.meal_templates.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: options?.limit || 50,
-      skip: options?.offset || 0,
+    const templates = await getMealTemplateRepo().findByUser(userId, {
+      search: options?.search,
+      tags: options?.tags,
+      limit: options?.limit || 50,
+      offset: options?.offset || 0,
     });
 
-    return templates.map((t: any) => this.mapToMealTemplate(t));
+    return templates.map((t) => this.mapToMealTemplate(t));
   }
 
   /**
    * Recupera template per ID
    */
   static async getTemplateById(id: string, userId: string): Promise<MealTemplate | null> {
-    const template = await prisma.meal_templates.findFirst({
-      where: {
-        id,
-        OR: [{ userId }, { isPublic: true }],
-      },
-    });
+    const template = await getMealTemplateRepo().findByIdOrPublic(id, userId);
 
     if (!template) return null;
 
@@ -116,12 +95,7 @@ export class MealTemplateService {
       isPublic?: boolean;
     }
   ): Promise<MealTemplate> {
-    const existing = await prisma.meal_templates.findFirst({
-      where: {
-        id,
-        userId,
-      },
-    });
+    const existing = await getMealTemplateRepo().findByIdForUser(id, userId);
 
     if (!existing) {
       throw new Error('Template non trovato o non autorizzato');
@@ -131,7 +105,7 @@ export class MealTemplateService {
       throw new Error('Il pasto deve contenere almeno un alimento');
     }
 
-    const updateData: Prisma.meal_templatesUpdateInput = {};
+    const updateData: UpdateMealTemplateInput = {};
 
     if (data.name !== undefined) {
       updateData.name = data.name.trim();
@@ -140,7 +114,7 @@ export class MealTemplateService {
       updateData.description = data.description?.trim() || null;
     }
     if (data.meal !== undefined) {
-      updateData.meal = toPrismaJsonValue(data.meal as Record<string, unknown>);
+      updateData.meal = data.meal;
     }
     if (data.tags !== undefined) {
       updateData.tags = data.tags;
@@ -149,10 +123,7 @@ export class MealTemplateService {
       updateData.isPublic = data.isPublic;
     }
 
-    const updated = await prisma.meal_templates.update({
-      where: { id },
-      data: updateData,
-    });
+    const updated = await getMealTemplateRepo().update(id, updateData);
 
     return this.mapToMealTemplate(updated);
   }
@@ -161,27 +132,20 @@ export class MealTemplateService {
    * Elimina template
    */
   static async deleteTemplate(id: string, userId: string): Promise<void> {
-    const existing = await prisma.meal_templates.findFirst({
-      where: {
-        id,
-        userId,
-      },
-    });
+    const existing = await getMealTemplateRepo().findByIdForUser(id, userId);
 
     if (!existing) {
       throw new Error('Template non trovato o non autorizzato');
     }
 
-    await prisma.meal_templates.delete({
-      where: { id },
-    });
+    await getMealTemplateRepo().delete(id);
   }
 
   /**
    * Mappa da Prisma model a MealTemplate
    */
   private static mapToMealTemplate(
-    template: Prisma.meal_templatesGetPayload<{ include: {} }>
+    template: MealTemplateEntity
   ): MealTemplate {
     return {
       id: template.id,

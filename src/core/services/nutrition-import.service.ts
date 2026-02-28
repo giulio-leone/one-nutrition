@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { prisma } from '@giulio-leone/lib-core';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { INutritionPlanRepository, NutritionPlan as NutritionPlanEntity } from '@giulio-leone/core/repositories';
 import type {
   AIParseContext,
   ImportOptions,
@@ -8,17 +9,11 @@ import type {
 } from '@giulio-leone/lib-import-core';
 import { BaseImportService, parseWithVisionAI } from '@giulio-leone/lib-import-core';
 import { normalizeAgentPayload, preparePlanForPersistence } from '../transformers/plan-transform';
-import type { nutrition_plans } from '@prisma/client';
-import {
-  toPrismaJsonAdaptations,
-  toPrismaJsonCompleteMacros,
-  toPrismaJsonMetadata,
-  toPrismaJsonPersonalizedPlan,
-  toPrismaJsonUserProfile,
-  toPrismaJsonWeeks,
-} from '../helpers/prisma-helpers';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
 import { ImportedNutritionPlanSchema } from '../helpers/imported-nutrition.schema';
+
+const getNutritionPlanRepo = () =>
+  ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
 
 const NutritionImportOptionsSchema = z.object({
   mode: z.enum(['auto', 'review']).default('auto'),
@@ -32,7 +27,7 @@ export type NutritionImportOptions = z.infer<typeof NutritionImportOptionsSchema
  */
 export interface NutritionImportResult extends BaseImportResult {
   planId?: string;
-  plan?: nutrition_plans;
+  plan?: NutritionPlanEntity;
   parseResult?: ImportedNutritionPlan;
 }
 
@@ -128,26 +123,22 @@ Regole:
   ): Promise<Partial<NutritionImportResult>> {
     const { normalized, persistenceData, parseResult } = processed;
 
-    const plan = await prisma.nutrition_plans.create({
-      data: {
-        id: normalized.id,
-        userId,
-        name: persistenceData.name,
-        description: persistenceData.description,
-        goals: persistenceData.goals,
-        durationWeeks: persistenceData.durationWeeks,
-        targetMacros: toPrismaJsonCompleteMacros(persistenceData.targetMacros),
-        userProfile: toPrismaJsonUserProfile(persistenceData.userProfile),
-        personalizedPlan: toPrismaJsonPersonalizedPlan(persistenceData.personalizedPlan),
-        adaptations: toPrismaJsonAdaptations(persistenceData.adaptations),
-        weeks: toPrismaJsonWeeks(persistenceData.weeks),
-        restrictions: persistenceData.restrictions,
-        preferences: persistenceData.preferences,
-        status: persistenceData.status,
-        metadata: toPrismaJsonMetadata(persistenceData.metadata),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+    const plan = await getNutritionPlanRepo().createFull({
+      id: normalized.id,
+      userId,
+      name: persistenceData.name,
+      description: persistenceData.description,
+      goals: persistenceData.goals,
+      durationWeeks: persistenceData.durationWeeks,
+      targetMacros: persistenceData.targetMacros,
+      userProfile: persistenceData.userProfile,
+      personalizedPlan: persistenceData.personalizedPlan,
+      adaptations: persistenceData.adaptations,
+      weeks: persistenceData.weeks,
+      restrictions: persistenceData.restrictions,
+      preferences: persistenceData.preferences,
+      status: persistenceData.status,
+      metadata: persistenceData.metadata,
     });
 
     return {

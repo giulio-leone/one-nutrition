@@ -7,9 +7,17 @@
  * Hexagonal: depends on Prisma for persistence, AI SDK for generation.
  */
 
-import { prisma } from '@giulio-leone/lib-core';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
+import type { INutritionPlanRepository } from '@giulio-leone/core/repositories';
+import type { IAgendaRepository } from '@giulio-leone/core/repositories';
 import { createId } from '@giulio-leone/lib-shared';
 import type { ShoppingPreferences } from './shopping-preferences.schema';
+
+const getNutritionPlanRepo = () =>
+  ServiceRegistry.getInstance().resolve<INutritionPlanRepository>(REPO_TOKENS.NUTRITION);
+
+const getAgendaRepo = () =>
+  ServiceRegistry.getInstance().resolve<IAgendaRepository>(REPO_TOKENS.AGENDA);
 
 // --- Types ---
 
@@ -36,12 +44,11 @@ export class ShoppingGeneratorService {
     preferences?: ShoppingPreferences,
   ): Promise<string> {
     // 1. Load the nutrition plan
-    const plan = await prisma.nutrition_plans.findUniqueOrThrow({
-      where: { id: planId },
-    });
+    const plan = await getNutritionPlanRepo().findById(planId);
+    if (!plan) throw new Error('Nutrition plan not found');
 
     // 2. Extract unique foods and aggregate quantities
-    const items = this.extractShoppingItems(plan, intervalDays);
+    const items = this.extractShoppingItems(plan as unknown as Record<string, unknown>, intervalDays);
 
     // 3. Apply user preferences (exclusions, store grouping, etc.)
     const filteredItems = preferences
@@ -50,39 +57,26 @@ export class ShoppingGeneratorService {
 
     // 4. Create the agenda project
     const projectId = createId();
-    await prisma.agenda_projects.create({
-      data: {
-        id: projectId,
-        name: `Shopping List — ${plan.name} (${intervalDays} days)`,
-        description: `Auto-generated shopping list for ${intervalDays} days`,
-        type: 'SHOPPING',
-        status: 'ACTIVE',
-        userId,
-        metadata: {
-          nutritionPlanId: planId,
-          intervalDays,
-          generatedAt: new Date().toISOString(),
-        },
-      },
+    await getAgendaRepo().createProject({
+      userId,
+      name: `Shopping List — ${plan.name} (${intervalDays} days)`,
+      slug: projectId,
+      description: `Auto-generated shopping list for ${intervalDays} days`,
+      status: 'ACTIVE',
     });
 
     // 5. Create tasks for each shopping item
-    await prisma.agenda_tasks.createMany({
-      data: filteredItems.map((item, index) => ({
-        id: createId(),
-        projectId,
-        title: `${item.name} — ${item.quantity} ${item.unit}`,
-        status: 'TODO',
-        priority: 'MEDIUM',
-        order: index,
-        metadata: {
-          category: item.category,
-          quantity: item.quantity,
-          unit: item.unit,
-          notes: item.notes,
-        },
-      })),
-    });
+    await Promise.all(
+      filteredItems.map((item, index) =>
+        getAgendaRepo().createTask({
+          projectId,
+          title: `${item.name} — ${item.quantity} ${item.unit}`,
+          status: 'TODO',
+          priority: 'MEDIUM',
+          order: index,
+        }),
+      ),
+    );
 
     return projectId;
   }

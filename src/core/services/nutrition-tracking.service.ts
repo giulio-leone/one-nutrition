@@ -48,7 +48,7 @@ function toNutritionDayLog(record: {
       : null;
   const actualDailyMacros =
     record.actualDailyMacros !== null && record.actualDailyMacros !== undefined
-      ? toMacros(record.actualDailyMacros as any)
+      ? toMacros(record.actualDailyMacros)
       : null;
 
   return {
@@ -289,7 +289,7 @@ export async function getNutritionPlanStats(
   const logsWithMacros = logs.filter((l) => l.actualDailyMacros !== null);
   const totalMacros = logsWithMacros.reduce(
     (acc, log) => {
-      const macros = toMacros(log.actualDailyMacros as any);
+      const macros = toMacros(log.actualDailyMacros);
       return {
         calories: acc.calories + (macros?.calories || 0),
         protein: acc.protein + (macros?.protein || 0),
