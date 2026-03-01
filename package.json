@@ -33,19 +33,19 @@
   "dependencies": {
     "@giulio-leone/agent-contracts": "workspace:*",
     "@giulio-leone/constants": "^0.13.0",
-    "@giulio-leone/lib-import-core": "^0.3.0",
+    "@giulio-leone/core": "workspace:*",
     "@giulio-leone/lib-core": "workspace:*",
+    "@giulio-leone/lib-food": "workspace:*",
+    "@giulio-leone/lib-import-core": "^0.3.0",
     "@giulio-leone/lib-shared": "workspace:*",
     "@giulio-leone/one-agent": "workspace:*",
     "@giulio-leone/schemas": "workspace:*",
-    "@giulio-leone/lib-food": "workspace:*",
-    "@prisma/client": "^7.2.0",
-    "zod": "4.3.6",
     "@giulio-leone/types": "workspace:*",
-    "@giulio-leone/core": "workspace:*"
+    "@prisma/client": "^7.4.2",
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.3.3",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
