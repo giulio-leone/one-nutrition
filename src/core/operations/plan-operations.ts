@@ -386,3 +386,76 @@ export function updateDay(
     weeks: updatedWeeks,
   };
 }
+
+/**
+ * Scala proporzionalmente un piano nutrizionale verso un nuovo target calorico.
+ * Tutti gli alimenti vengono scalati mantenendo le proporzioni macro originali.
+ * I macro target del piano vengono aggiornati di conseguenza.
+ */
+export function scalePlanToCalories(
+  plan: NutritionPlan,
+  newTargetCalories: number
+): NutritionPlan {
+  const currentCalories = plan.targetMacros.calories;
+  if (currentCalories <= 0 || newTargetCalories <= 0) {
+    return plan;
+  }
+
+  const ratio = newTargetCalories / currentCalories;
+
+  const scaledTargetMacros = {
+    calories: Math.round(newTargetCalories),
+    protein: Math.round(plan.targetMacros.protein * ratio),
+    carbs: Math.round(plan.targetMacros.carbs * ratio),
+    fats: Math.round(plan.targetMacros.fats * ratio),
+    fiber: Math.round(plan.targetMacros.fiber * ratio),
+  };
+
+  const scaleFood = (food: Food): Food => {
+    if (!food.macros || food.quantity <= 0) return food;
+    const scaledQuantity = Math.round(food.quantity * ratio * 10) / 10;
+    return {
+      ...food,
+      quantity: scaledQuantity,
+      macros: {
+        calories: Math.round((food.macros.calories || 0) * ratio),
+        protein: Math.round((food.macros.protein || 0) * ratio * 10) / 10,
+        carbs: Math.round((food.macros.carbs || 0) * ratio * 10) / 10,
+        fats: Math.round((food.macros.fats || 0) * ratio * 10) / 10,
+        fiber: food.macros.fiber != null
+          ? Math.round(food.macros.fiber * ratio * 10) / 10
+          : undefined,
+      },
+    };
+  };
+
+  const scaledWeeks = plan.weeks.map((week: NutritionWeek) => ({
+    ...week,
+    days: (week.days || []).map((day: NutritionDay) => {
+      const scaledMeals = day.meals.map((meal: Meal) => {
+        const scaledFoods = meal.foods.map(scaleFood);
+        return {
+          ...meal,
+          foods: scaledFoods,
+          totalMacros: calculateMacros(scaledFoods),
+        };
+      });
+      return recalculateDay({ ...day, meals: scaledMeals });
+    }),
+    weeklyAverageMacros: week.weeklyAverageMacros
+      ? {
+          calories: Math.round((week.weeklyAverageMacros.calories || 0) * ratio),
+          protein: Math.round((week.weeklyAverageMacros.protein || 0) * ratio * 10) / 10,
+          carbs: Math.round((week.weeklyAverageMacros.carbs || 0) * ratio * 10) / 10,
+          fats: Math.round((week.weeklyAverageMacros.fats || 0) * ratio * 10) / 10,
+          fiber: Math.round((week.weeklyAverageMacros.fiber || 0) * ratio * 10) / 10,
+        }
+      : week.weeklyAverageMacros,
+  }));
+
+  return {
+    ...plan,
+    targetMacros: scaledTargetMacros,
+    weeks: scaledWeeks,
+  };
+}
