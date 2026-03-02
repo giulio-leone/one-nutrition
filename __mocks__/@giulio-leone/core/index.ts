@@ -53,3 +53,14 @@ export const REPO_TOKENS = {
   AI_MODEL: 'AI_MODEL_REPOSITORY',
   ADMIN: 'ADMIN_REPOSITORY',
 };
+
+// Getter helpers that mirror packages/core/src/index.ts
+export function getNutritionTemplateRepo() {
+  return ServiceRegistry.getInstance().resolve(REPO_TOKENS.NUTRITION_TEMPLATE);
+}
+export function getNutritionDayLogRepo() {
+  return ServiceRegistry.getInstance().resolve(REPO_TOKENS.NUTRITION_DAY_LOG);
+}
+export function getNutritionRepo() {
+  return ServiceRegistry.getInstance().resolve(REPO_TOKENS.NUTRITION);
+}

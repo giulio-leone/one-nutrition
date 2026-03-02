@@ -12,6 +12,7 @@ export default defineConfig({
       '@giulio-leone/lib-core': path.resolve(__dirname, '__mocks__/@giulio-leone/lib-core.ts'),
       '@giulio-leone/core/repositories': path.resolve(__dirname, '__mocks__/@giulio-leone/core/repositories.ts'),
       '@giulio-leone/core': path.resolve(__dirname, '__mocks__/@giulio-leone/core/index.ts'),
+      '@giulio-leone/schemas': path.resolve(__dirname, '../onecoach-schemas/src/index.ts'),
     },
   },
 });

@@ -1,14 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NutritionImportService } from '../nutrition-import.service';
+import { NutritionImportService } from '../services/nutrition-import.service';
 import type { AIParseContext } from '@giulio-leone/lib-shared/import-core';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
+import { ServiceRegistry, REPO_TOKENS } from '@giulio-leone/core';
 
 vi.mock('@giulio-leone/lib-core', () => ({
-  prisma: {
-    nutrition_plans: {
-      create: vi.fn().mockResolvedValue({ id: 'plan_1' }),
-    },
-  },
+  prisma: {},
 }));
 
 describe('NutritionImportService', () => {
@@ -16,8 +13,15 @@ describe('NutritionImportService', () => {
     parseWithAI: vi.fn(),
   };
 
+  const mockRepo = {
+    createFull: vi.fn().mockResolvedValue({ id: 'plan_1' }),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    ServiceRegistry.__clearAll();
+    ServiceRegistry.__setMock(REPO_TOKENS.NUTRITION, mockRepo);
+    mockRepo.createFull.mockResolvedValue({ id: 'plan_1' });
   });
 
   it('importa un piano nutrizionale e restituisce successo', async () => {
