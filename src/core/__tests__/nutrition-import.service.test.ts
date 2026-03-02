@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NutritionImportService } from '../nutrition-import.service';
-import type { AIParseContext } from '@giulio-leone/lib-import-core';
+import type { AIParseContext } from '@giulio-leone/lib-shared/import-core';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
 
 vi.mock('@giulio-leone/lib-core', () => ({

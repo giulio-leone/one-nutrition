@@ -36,7 +36,6 @@
     "@giulio-leone/core": "workspace:*",
     "@giulio-leone/lib-core": "workspace:*",
     "@giulio-leone/lib-food": "workspace:*",
-    "@giulio-leone/lib-import-core": "^0.3.0",
     "@giulio-leone/lib-shared": "workspace:*",
     "@giulio-leone/schemas": "workspace:*",
     "@giulio-leone/types": "workspace:*",

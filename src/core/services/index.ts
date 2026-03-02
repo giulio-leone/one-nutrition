@@ -1,5 +1,5 @@
-// nutrition-import excluded from barrel: depends on lib-import-core → lib-ai (not installed).
-// Import directly from '@giulio-leone/one-nutrition/core/services/nutrition-import.service' if needed.
+// nutrition-import uses @giulio-leone/lib-shared/import-core (no lib-ai dependency).
+// Still excluded from barrel to avoid pulling in heavy import-core deps at module scope.
 // food-auto-creation excluded from barrel: depends on lib-food → lib-core (circular)
 // Import directly if needed: @giulio-leone/one-nutrition/server-transform
 // ModificationService moved to @giulio-leone/lib-copilot-framework
