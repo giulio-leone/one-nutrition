@@ -7,10 +7,15 @@ import type {
   BaseImportResult,
   ImportFileType,
 } from '@giulio-leone/lib-import-core';
-import { BaseImportService, parseWithVisionAI } from '@giulio-leone/lib-import-core';
 import { normalizeAgentPayload, preparePlanForPersistence } from '../transformers/plan-transform';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
 import { ImportedNutritionPlanSchema } from '../helpers/imported-nutrition.schema';
+
+// Dynamic import to avoid module-not-found when lib-import-core's transitive
+// dependency on @giulio-leone/lib-ai is not installed.
+async function getImportCore() {
+  return import('@giulio-leone/lib-import-core');
+}
 
 const NutritionImportOptionsSchema = z.object({
   mode: z.enum(['auto', 'review']).default('auto'),
