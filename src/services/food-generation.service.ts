@@ -1,10 +1,13 @@
 /**
  * Food Generation Service
  *
- * Service layer for executing food generation via OneAgent SDK v3.1.
+ * @deprecated Legacy SDK 3.1 execute() removed. Use Gauss nutrition agent instead.
  */
 
-import { execute } from '@giulio-leone/one-agent/framework/engine';
+// Legacy execute() removed — stub that throws
+async function execute<T>(_path: string, _input: unknown, _opts?: unknown): Promise<{ success: boolean; output?: T; error?: { message: string; code: string }; meta: { tokensUsed: number; costUSD: number } }> {
+  throw new Error('Legacy one-agent SDK execute() removed. Use Gauss nutrition agent instead.');
+}
 import type { ProgressCallback } from '@giulio-leone/agent-contracts';
 import { createLazyService } from '@giulio-leone/lib-shared';
 import { initializeNutritionSchemas } from '../registry';

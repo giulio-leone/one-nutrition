@@ -5,7 +5,10 @@
  * Call initializeNutritionSchemas() before executing nutrition agents.
  */
 
-import { registerSchemas, registerTools, registerTransforms } from '@giulio-leone/one-agent/framework';
+// Local no-op stubs — legacy SDK registry functions removed
+function registerSchemas(_schemas: Record<string, unknown>): void { /* no-op */ }
+function registerTools(_tools: Record<string, unknown>): void { /* no-op */ }
+function registerTransforms(_transforms: Record<string, unknown>): void { /* no-op */ }
 
 // ==================== MAIN COORDINATOR SCHEMAS ====================
 

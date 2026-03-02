@@ -5,7 +5,7 @@
  * Hexagonal: depends on AIModelService from lib-ai for model resolution.
  */
 
-import { AIModelService } from '@giulio-leone/lib-ai';
+import { AIModelService } from '@giulio-leone/ai-config';
 import { resolveProviderFromModelId } from '@giulio-leone/types/ai';
 
 // --- Types ---
