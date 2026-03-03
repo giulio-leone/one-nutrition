@@ -8,6 +8,7 @@ import type {
   ImportFileType,
 } from '@giulio-leone/lib-shared/import-core';
 import { BaseImportService } from '@giulio-leone/lib-shared/import-core';
+import { parseWithVisionAI } from '@giulio-leone/lib-shared/import-core';
 import { normalizeAgentPayload, preparePlanForPersistence } from '../transformers/plan-transform';
 import type { ImportedNutritionPlan } from '../helpers/imported-nutrition.schema';
 import { ImportedNutritionPlanSchema } from '../helpers/imported-nutrition.schema';
