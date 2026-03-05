@@ -21,7 +21,7 @@ import type {
 } from '@giulio-leone/types';
 import { toMacros, ensureDecimalNumber } from '@giulio-leone/lib-shared';
 
-import { logger } from '@giulio-leone/lib-core';
+import { logger } from '@giulio-leone/lib-core/logger.service';
 
 /**
  * Convert database record to domain type

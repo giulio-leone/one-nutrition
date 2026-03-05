@@ -9,7 +9,7 @@
  * - Validazione range sicuri
  *
  * NON DUPLICARE queste formule altrove!
- */ import { logger } from '@giulio-leone/lib-core';
+ */ import { logger } from '@giulio-leone/lib-core/logger.service';
 
 // ============================================
 // TYPES

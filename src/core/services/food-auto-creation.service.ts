@@ -23,7 +23,7 @@ import { getFoodRepo } from '@giulio-leone/core';
 import type { CreateFoodItemInput } from '@giulio-leone/core/repositories';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
 import { SUPPORTED_FOOD_LOCALES } from '@giulio-leone/constants';
-import { logger } from '@giulio-leone/lib-core';
+import { logger } from '@giulio-leone/lib-core/logger.service';
 import {
   type AIGeneratedFood,
   safeValidateAIGeneratedFood,

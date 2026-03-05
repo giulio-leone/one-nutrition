@@ -7,7 +7,7 @@
  */
 
 import { getNutritionTemplateRepo as getTemplateRepo } from '@giulio-leone/core';
-import { logger } from '@giulio-leone/lib-core';
+import { logger } from '@giulio-leone/lib-core/logger.service';
 import { createId } from '@giulio-leone/lib-shared/id-generator';
 import type {
   NutritionTemplate,

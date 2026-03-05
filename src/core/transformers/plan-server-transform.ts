@@ -13,7 +13,7 @@
 import type { NutritionPlan, NutritionWeek, NutritionDay, Meal, Food } from '@giulio-leone/types';
 import { FoodService, calculateMacrosFromQuantity } from '@giulio-leone/lib-food';
 
-import { logger } from '@giulio-leone/lib-core';
+import { logger } from '@giulio-leone/lib-core/logger.service';
 const DEFAULT_MACROS = {
   calories: 0,
   protein: 0,
